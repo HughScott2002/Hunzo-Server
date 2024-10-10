@@ -1,0 +1,118 @@
+
+AccountID (primary key)
+First Name
+Last Name
+Phone
+Address
+City
+Country
+Default Currency
+State
+Postal Code
+DateOfBirth
+SSN
+Email
+Hashed Password
+KYCStatus (enum: Pending, Approved, Rejected)
+
+
+
+`/api/auth/refresh`: This endpoint should verify the current refresh token (stored in an HTTP-only cookie), generate a new access token, and optionally rotate the refresh token for added security.
+
+Update `/api/auth/login` and `/api/auth/register` to send both an access token and a refresh token. The access token can be short-lived (e.g., 15 minutes), while the refresh token can have a longer lifespan (e.g., 7 days).
+Ensure that `/api/auth/logout` invalidates both the access token and the refresh token.
+
+//
+# Go Backend User Service Authentication Implementation Guide
+
+This guide outlines the steps to implement secure authentication for the user service in your finance application backend.
+
+## 1. Project Setup
+
+- [ ] Set up a new Go project with modules
+- [ ] Install necessary dependencies:
+  ```
+  go get -u github.com/golang-jwt/jwt/v4
+  go get -u golang.org/x/crypto/bcrypt
+  go get -u github.com/go-chi/chi/v5
+  go get -u github.com/go-chi/cors
+  ```
+
+## 2. User Model and Database
+
+- [ ] Define a User struct with fields: ID, Email, HashedPassword, MFAEnabled, MFASecret
+- [ ] Set up a database connection (e.g., PostgreSQL with `database/sql` or an ORM like GORM)
+- [ ] Create a users table in the database
+- [ ] Implement CRUD operations for the User model
+
+## 3. Authentication Endpoints
+
+- [ ] Implement a `/register` endpoint:
+  - Validate input
+  - Check if user already exists
+  - Hash password using bcrypt
+  - Store user in database
+- [ ] Implement a `/login` endpoint:
+  - Validate input
+  - Check user credentials
+  - Generate JWT token
+  - Return token in HttpOnly, Secure cookie
+- [ ] Implement a `/logout` endpoint:
+  - Invalidate the JWT token
+  - Clear the HttpOnly cookie
+
+## 4. JWT Implementation
+
+- [ ] Create functions to generate and validate JWT tokens
+- [ ] Include claims: user ID, expiration time, issued at time, and JWT ID
+- [ ] Implement token refresh mechanism
+- [ ] Store refresh tokens in the database
+
+## 5. Multi-Factor Authentication (MFA)
+
+- [ ] Implement TOTP (Time-based One-Time Password) generation and validation
+- [ ] Create endpoints for enabling/disabling MFA
+- [ ] Modify login flow to include MFA step when enabled
+
+## 6. Session Management
+
+- [ ] Create a sessions table in the database
+- [ ] Implement endpoints for fetching and managing user sessions
+- [ ] Create functionality to revoke specific or all sessions
+
+## 7. Password Reset
+
+- [ ] Implement a secure password reset flow:
+  - Create endpoint to request password reset
+  - Generate and store a time-limited, single-use token
+  - Send reset email with secure reset link
+  - Create endpoint to process password reset requests
+
+## 8. API Security
+
+- [ ] Implement rate limiting for sensitive endpoints (login, password reset)
+- [ ] Set up CORS with appropriate restrictions
+- [ ] Create middleware for input validation and sanitization
+
+## 9. Logging and Auditing
+
+- [ ] Set up comprehensive logging for all authentication events
+- [ ] Implement an audit trail for sensitive operations
+
+## 10. Testing
+
+- [ ] Write unit tests for all authentication functions
+- [ ] Implement integration tests for auth flows
+- [ ] Perform security testing (e.g., penetration testing)
+
+## 11. Documentation
+
+- [ ] Document all API endpoints
+- [ ] Create usage guides for authentication flows
+
+## 12. Compliance and Regulations
+
+- [ ] Review and ensure compliance with relevant financial regulations
+- [ ] Implement necessary data protection measures for privacy laws compliance
+
+Remember to follow Go best practices, handle errors appropriately, and regularly update dependencies for security patches.

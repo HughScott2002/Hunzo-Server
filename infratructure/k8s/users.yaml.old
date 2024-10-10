@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: users
+spec:
+  containers:
+    - name: users
+      image: horizon/serviceusers:0.0.1
+      ports:
+        - containerPort: 5000
+  imagePullSecrets:
+    - name: regcred
