@@ -2,8 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
-	"io"
 	"net/http"
 
 	"example.com/m/v2/src/db"

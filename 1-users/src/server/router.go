@@ -16,10 +16,12 @@ func Router() http.Handler {
 
 	r.Post("/login", handlers.HandlerLogin)
 	r.Post("/register", handlers.HandlerRegister)
+	// r.Post("/update", handlers.HandlerUpdateUser)
 
 	// Protected routes
 	r.Group(func(r chi.Router) {
 		// r.Use(middleware.RequireAuth)  // Assuming you have this middleware
+		r.Get("/check-session", handlers.HandlerCheckSession)
 		r.Post("/refresh", middleware.RateLimitMiddleware(handlers.HandlerRefreshToken))
 		r.Get("/list-sessions", middleware.RateLimitMiddleware(handlers.HandlerListActiveSessions))
 		r.Post("/logout", handlers.HandlerLogout)
