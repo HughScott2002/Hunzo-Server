@@ -18,6 +18,17 @@ func GenerateAccessToken(email string) (string, error) {
 	return token.SignedString(jwtKey)
 }
 
+func GenerateRefreshToken(email string) (string, error) {
+	expirationTime := time.Now().Add(7 * 24 * time.Hour)
+	claims := &jwt.RegisteredClaims{
+		Subject:   email,
+		ExpiresAt: jwt.NewNumericDate(expirationTime),
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString(jwtKey)
+}
+
 func ValidateAccessToken(tokenString string) (*jwt.RegisteredClaims, error) {
 	claims := &jwt.RegisteredClaims{}
 
