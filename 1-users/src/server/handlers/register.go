@@ -9,12 +9,14 @@ import (
 	"time"
 
 	"example.com/m/v2/src/db"
+	"example.com/m/v2/src/db/services"
 	"example.com/m/v2/src/events/producer"
 	"example.com/m/v2/src/models"
 	"example.com/m/v2/src/models/events"
 	"example.com/m/v2/src/utils"
-	"golang.org/x/crypto/bcrypt"
 )
+
+var userService = services.NewUserService()
 
 func HandlerRegister(w http.ResponseWriter, r *http.Request) {
 	//Change
@@ -36,33 +38,40 @@ func HandlerRegister(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	// Check if the user already exists
-	if _, exists := db.Users[user.Email]; exists {
-		utils.ErrorResponse(w, "User already exists", 500)
-		// http.Error(w, "User already exists", http.StatusConflict)
-		return
-	}
-	//Create the Account Id
-	user.AccountId, err = utils.GenerateAccountId()
-	if err != nil {
-		http.Error(w, "Error generating account ID", http.StatusInternalServerError)
+
+	//Checks if the user exists and creates a new user
+	if err := userService.CreateUser(&user); err != nil {
+		utils.ErrorResponse(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	// Hash the password
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.HashedPassword), bcrypt.DefaultCost)
-	if err != nil {
-		http.Error(w, "Error hashing password", http.StatusInternalServerError)
-		return
-	}
+	// // Check if the user already exists
+	// if _, exists := db.Users[user.Email]; exists {
+	// 	utils.ErrorResponse(w, "User already exists", 500)
+	// 	// http.Error(w, "User already exists", http.StatusConflict)
+	// 	return
+	// }
+	// //Create the Account Id
+	// user.AccountId, err = utils.GenerateAccountId()
+	// if err != nil {
+	// 	http.Error(w, "Error generating account ID", http.StatusInternalServerError)
+	// 	return
+	// }
 
-	user.HashedPassword = string(hashedPassword)
+	// // Hash the password
+	// hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.HashedPassword), bcrypt.DefaultCost)
+	// if err != nil {
+	// 	http.Error(w, "Error hashing password", http.StatusInternalServerError)
+	// 	return
+	// }
 
-	// Set the initial KYC status to Pending
-	user.KYCStatus = models.KYCStatusPending
+	// user.HashedPassword = string(hashedPassword)
 
-	// Save the user in memory
-	db.Users[user.Email] = user
+	// // Set the initial KYC status to Pending
+	// user.KYCStatus = models.KYCStatusPending
+
+	// // Save the user in memory
+	// db.Users[user.Email] = user
 
 	userCreatedEvent := events.UserCreatedEvent{
 		AccountId: user.AccountId,
