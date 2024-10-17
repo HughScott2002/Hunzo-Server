@@ -33,6 +33,9 @@ services:
       - "8081:8080"
     depends_on:
       - broker
+      - redis
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
 
   wallet-service:
     container_name: wallet-service
@@ -41,3 +44,19 @@ services:
       - "8082:8080"
     depends_on:
       - broker
+      - redis
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: always
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+
+volumes:
+  redis_data:

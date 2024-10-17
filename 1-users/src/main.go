@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 
+	"example.com/m/v2/src/db"
 	"example.com/m/v2/src/server"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -22,6 +23,12 @@ import (
 //TODO: Keep JWT payload minimal to reduce token size.
 
 func main() {
+	// Initialize Redis
+	db.InitRedis()
+
+	// Start Redis health check routine
+	go db.RedisHealthCheck()
+
 	r := chi.NewRouter()
 
 	// Middleware
@@ -53,7 +60,14 @@ func main() {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("()"))
 	})
+	r.Route("/account", func(r chi.Router) {
+		r.Get("/update", HandlerPlaceHolder)
+	})
 
 	fmt.Println("User server is running on Port 8080")
 	log.Fatal(http.ListenAndServe(":8080", r))
+}
+
+func HandlerPlaceHolder(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte{})
 }
