@@ -12,13 +12,13 @@ import (
 var RedisClient *redis.Client
 
 func InitRedis() {
-	redisPassword := os.Getenv("USER_REDIS_PASSWORD")
+	redisPassword := os.Getenv("WALLET_REDIS_PASSWORD")
 	if redisPassword == "" {
-		panic("USER_REDIS_PASSWORD environment variable is not set")
+		panic("WALLET_REDIS_PASSWORD environment variable is not set")
 	}
 
 	RedisClient = redis.NewClient(&redis.Options{
-		Addr:     "user-redis:6379",
+		Addr:     "wallet-redis:6379",
 		Password: redisPassword,
 		DB:       0,
 	})
@@ -41,10 +41,10 @@ func RedisHealthCheck() {
 
 			_, err := RedisClient.Ping(ctx).Result()
 			if err != nil {
-				log.Printf("Redis User health check failed: %v", err)
+				log.Printf("Redis Wallet health check failed: %v", err)
 				// You might want to implement a retry mechanism or alert system here
 			} else {
-				log.Println("Redis User health check passed")
+				log.Println("Redis Wallet health check passed")
 			}
 		}
 	}
