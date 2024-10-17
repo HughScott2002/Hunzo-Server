@@ -14,8 +14,6 @@ import (
 func Router() http.Handler {
 	r := chi.NewRouter()
 
-	r.Post("/login", handlers.HandlerLogin)
-	r.Post("/register", handlers.HandlerRegister)
 	// r.Post("/update", handlers.HandlerUpdateUser)
 
 	// Protected routes
@@ -24,11 +22,13 @@ func Router() http.Handler {
 		r.Get("/check-session", handlers.HandlerCheckSession)
 		r.Post("/refresh", middleware.RateLimitMiddleware(handlers.HandlerRefreshToken))
 		// r.Get("/list-sessions", middleware.RateLimitMiddleware(handlers.HandlerListActiveSessions))
-		r.Post("/logout", handlers.HandlerLogout)
 
 		// User account management
 		r.Route("/account", func(r chi.Router) {
-			r.Get("/", handlers.HandlerGetUserProfile)
+			r.Post("/login", handlers.HandlerLogin)
+			r.Post("/register", handlers.HandlerRegister)
+			r.Post("/logout", handlers.HandlerLogout)
+			r.Get("/{accountid}", handlers.HandlerGetUserProfile)
 			r.Put("/", handlers.HandlerUpdateUserProfile)
 			r.Delete("/", handlers.HandlerDeleteUserAccount)
 			r.Put("/change-password", handlers.HandlerChangePassword)
@@ -36,11 +36,12 @@ func Router() http.Handler {
 
 		// Security settings
 		r.Route("/security", func(r chi.Router) {
-			r.Get("/sessions", handlers.HandlerListActiveSessions)
+			r.Post("/sessions", handlers.HandlerListActiveSessions)
+			r.Get("/sessions/{sessionId}", handlers.HandlerListActiveSessions)
 			r.Post("/enable-2fa", handlers.HandlerEnable2FA)
 			r.Post("/disable-2fa", handlers.HandlerDisable2FA)
 		})
-		
+
 		// Device and session management
 		r.Route("/devices", func(r chi.Router) {
 			r.Get("/", handlers.HandlerListDevices)

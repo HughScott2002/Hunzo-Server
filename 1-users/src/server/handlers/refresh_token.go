@@ -3,13 +3,13 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"example.com/m/v2/src/db"
 	"example.com/m/v2/src/utils"
 )
 
 func HandlerRefreshToken(w http.ResponseWriter, r *http.Request) {
-	deviceInfo := r.Header.Get("User-Agent")
 	// Get the refresh token from the cookie
 	refreshTokenCookie, err := r.Cookie("refresh_token")
 	if err != nil {
@@ -17,33 +17,61 @@ func HandlerRefreshToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	refreshToken := refreshTokenCookie.Value
-
-	// Validate the refresh token
-	user, exists := db.RefreshTokens[refreshToken]
-	if !exists || user.DeviceInfo != deviceInfo {
+	// Get the refresh token info from the database
+	tokenInfo, err := db.GetRefreshToken(refreshTokenCookie.Value)
+	if err != nil {
 		http.Error(w, "Invalid refresh token", http.StatusUnauthorized)
 		return
 	}
 
-	// var user models.User
+	// Get the user associated with this refresh token
+	user, err := db.GetUser(tokenInfo.UserEmail)
+	if err != nil {
+		http.Error(w, "User not found", http.StatusUnauthorized)
+		return
+	}
+
 	// Generate new access token
-	newAccessToken, err := utils.GenerateAccessToken(user.UserEmail)
+	newAccessToken, err := utils.GenerateAccessToken(user.Email)
 	if err != nil {
 		http.Error(w, "Error generating new access token", http.StatusInternalServerError)
 		return
 	}
 
-	// Optionally, rotate the refresh token
-	newRefreshToken, err := utils.GenerateRefreshToken(user.UserEmail)
+	// Generate new refresh token
+	newRefreshToken, err := utils.GenerateRefreshToken(user.Email)
 	if err != nil {
 		http.Error(w, "Error generating new refresh token", http.StatusInternalServerError)
 		return
 	}
 
-	// Update stored refresh token
-	delete(db.RefreshTokens, refreshToken)
-	db.RefreshTokens[newRefreshToken] = user
+	// Update the refresh token in the database
+	err = db.DeleteRefreshToken(refreshTokenCookie.Value)
+	if err != nil {
+		http.Error(w, "Error deleting old refresh token", http.StatusInternalServerError)
+		return
+	}
+
+	err = db.AddRefreshToken(newRefreshToken, db.RefreshTokenInfo{
+		UserEmail:  user.Email,
+		DeviceInfo: tokenInfo.DeviceInfo,
+		CreatedAt:  time.Now(),
+	})
+	if err != nil {
+		http.Error(w, "Error storing new refresh token", http.StatusInternalServerError)
+		return
+	}
+
+	// Update the session's last login time
+	sessions, err := db.GetUserSessions(user.Email)
+	if err == nil {
+		for _, session := range sessions {
+			if session.Token == refreshTokenCookie.Value {
+				db.UpdateSessionLastLogin(session.ID)
+				break
+			}
+		}
+	}
 
 	// Set new cookies
 	http.SetCookie(w, &http.Cookie{
@@ -64,23 +92,15 @@ func HandlerRefreshToken(w http.ResponseWriter, r *http.Request) {
 		MaxAge:   604800, // 7 days
 	})
 
-	sendUser, exists := db.Users[user.UserEmail]
-	if !exists {
-		http.Error(w, "User doesn't exist", http.StatusNotFound)
-		return
-	}
-	userData := map[string]interface{}{
-		"user": map[string]string{
-			"id":        sendUser.AccountId,
-			"email":     sendUser.Email,
-			"firstName": sendUser.FirstName,
-			"lastName":  sendUser.LastName,
-			"kycStatus": sendUser.KYCStatus.String(),
-		},
-	}
-
-	// Return success response
+	// Send the response
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(userData)
-	// json.NewEncoder(w).Encode(map[string]string{"message": "Tokens refreshed successfully"})
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"user": map[string]string{
+			"id":        user.AccountId,
+			"email":     user.Email,
+			"firstName": user.FirstName,
+			"lastName":  user.LastName,
+			"kycStatus": user.KYCStatus.String(),
+		},
+	})
 }

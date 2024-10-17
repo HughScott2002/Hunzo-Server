@@ -38,6 +38,8 @@ services:
     environment:
       - USER_REDIS_PASSWORD=${USER_REDIS_PASSWORD}
       - USER_REDIS_PORT=${USER_REDIS_PORT}
+      - ENVIRONMENT=${ENVIRONMENT}
+      - MODE=${MODE}
 
   wallet-service:
     container_name: wallet-service

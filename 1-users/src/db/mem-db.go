@@ -2,16 +2,15 @@ package db
 
 import (
 	"sync"
-	"time"
 
 	"example.com/m/v2/src/models"
 )
 
-type RefreshTokenInfo struct {
-	UserEmail  string
-	DeviceInfo string
-	CreatedAt  time.Time
-}
+// type RefreshTokenInfo struct {
+// 	UserEmail  string
+// 	DeviceInfo string
+// 	CreatedAt  time.Time
+// }
 
 var Users = make(map[string]models.User)
 var Sessions = make(map[string]models.Session)

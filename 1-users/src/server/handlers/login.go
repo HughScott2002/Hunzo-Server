@@ -30,39 +30,60 @@ func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid JSON format", http.StatusBadRequest)
 		return
 	}
-	// Check if the user exists in memory
-	storedUser, exists := db.Users[loginRequest.Email]
-	if !exists {
+	storedUser, err := db.GetUser(loginRequest.Email)
+	if err != nil {
 		http.Error(w, "User doesn't exist", http.StatusNotFound)
 		return
 	}
-	// Compare the stored hashed password with the hash of the provided password
+
 	err = bcrypt.CompareHashAndPassword([]byte(storedUser.HashedPassword), []byte(loginRequest.HashedPassword))
 	if err != nil {
 		http.Error(w, "Invalid password", http.StatusUnauthorized)
 		return
 	}
 
-	// Generate access token
 	accessToken, err := utils.GenerateAccessToken(loginRequest.Email)
 	if err != nil {
 		http.Error(w, "Error generating access token", http.StatusInternalServerError)
 		return
 	}
-	// Generate refresh token
+
 	refreshToken, err := utils.GenerateRefreshToken(loginRequest.Email)
 	if err != nil {
 		http.Error(w, "Error generating refresh token", http.StatusInternalServerError)
 		return
 	}
 
-	db.RefreshTokens[refreshToken] = db.RefreshTokenInfo{
+	accountId, err := utils.GenerateAccountId()
+	if err != nil {
+		http.Error(w, "Error generating AccountId", http.StatusInternalServerError)
+		return
+	}
+	session := &models.Session{
+		ID:          accountId, // Implement this function
+		UserEmail:   storedUser.Email,
+		DeviceInfo:  deviceInfo,
+		Token:       refreshToken,
+		LastLoginAt: time.Now(),
+		CreatedAt:   time.Now(),
+	}
+
+	err = db.AddSession(session)
+	if err != nil {
+		http.Error(w, "Error creating session", http.StatusInternalServerError)
+		return
+	}
+
+	err = db.AddRefreshToken(refreshToken, db.RefreshTokenInfo{
 		UserEmail:  storedUser.Email,
 		DeviceInfo: deviceInfo,
 		CreatedAt:  time.Now(),
+	})
+	if err != nil {
+		http.Error(w, "Error storing refresh token", http.StatusInternalServerError)
+		return
 	}
 
-	// Set cookies
 	http.SetCookie(w, &http.Cookie{
 		Name:     "access_token",
 		Value:    accessToken,
@@ -81,13 +102,6 @@ func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 		MaxAge:   604800, // 7 days
 	})
 
-	// Return the session token as part of the response
-	// response := map[string]string{
-	// 	"message":   "Login successful",
-	// 	"kycstatus": storedUser.KYCStatus.String(),
-	// }
-
-	// After successful login
 	userData := map[string]interface{}{
 		"user": map[string]string{
 			"id":        storedUser.AccountId,
@@ -98,9 +112,6 @@ func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	// Set headers and return the response
 	w.Header().Set("Content-Type", "application/json")
-	// json.NewEncoder(w).Encode(response)
 	json.NewEncoder(w).Encode(userData)
-
 }

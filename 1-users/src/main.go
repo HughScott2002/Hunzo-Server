@@ -23,12 +23,11 @@ import (
 //TODO: Keep JWT payload minimal to reduce token size.
 
 func main() {
-	// Initialize Redis
-	db.InitRedis()
-
-	// Start Redis health check routine
-	go db.RedisHealthCheck()
-
+	// Initialize
+	err := db.Init()
+	if err != nil {
+		log.Fatalf("Failed to initialize database: %v", err)
+	}
 	r := chi.NewRouter()
 
 	// Middleware
@@ -42,32 +41,41 @@ func main() {
 		AllowCredentials: true,
 		MaxAge:           300,
 	}))
+
 	//Routing
-	r.Mount("/api/users/auth", server.Router())
-	r.Post("/api/users/dump", func(w http.ResponseWriter, r *http.Request) {
-		body, err := io.ReadAll(r.Body)
-		if err != nil {
-			http.Error(w, "Failed to read request body", http.StatusBadRequest)
-			return
-		}
-		defer r.Body.Close()
+	//Everything in the service needs to start with /api/users to be properly routed
+	r.Route("/api/users", func(r chi.Router) {
+		r.Mount("/auth", server.Router())
+		r.Post("/dump", HandlerDump)
+		r.Get("/health", HandlerHealth)
+		// r.Route("/account", func(r chi.Router) {
+		// 	r.Get("/update", HandlerPlaceHolder)
+		// })
 
-		fmt.Printf("%s\n", body)
-		w.WriteHeader(http.StatusOK)
-		w.Write(body)
 	})
-	r.Get("/api/users/health", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("()"))
-	})
-	r.Route("/account", func(r chi.Router) {
-		r.Get("/update", HandlerPlaceHolder)
-	})
-
 	fmt.Println("User server is running on Port 8080")
 	log.Fatal(http.ListenAndServe(":8080", r))
+
 }
 
 func HandlerPlaceHolder(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte{})
+}
+
+func HandlerDump(w http.ResponseWriter, r *http.Request) {
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Failed to read request body", http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	fmt.Printf("%s\n", body)
+	w.WriteHeader(http.StatusOK)
+	w.Write(body)
+}
+
+func HandlerHealth(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("()"))
 }

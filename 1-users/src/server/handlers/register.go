@@ -14,6 +14,7 @@ import (
 	"example.com/m/v2/src/models"
 	"example.com/m/v2/src/models/events"
 	"example.com/m/v2/src/utils"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var userService = services.NewUserService()
@@ -39,39 +40,37 @@ func HandlerRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//Checks if the user exists and creates a new user
-	if err := userService.CreateUser(&user); err != nil {
-		utils.ErrorResponse(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
 	// // Check if the user already exists
 	// if _, exists := db.Users[user.Email]; exists {
 	// 	utils.ErrorResponse(w, "User already exists", 500)
 	// 	// http.Error(w, "User already exists", http.StatusConflict)
 	// 	return
 	// }
-	// //Create the Account Id
-	// user.AccountId, err = utils.GenerateAccountId()
-	// if err != nil {
-	// 	http.Error(w, "Error generating account ID", http.StatusInternalServerError)
-	// 	return
-	// }
+	//Create the Account Id
+	user.AccountId, err = utils.GenerateAccountId()
+	if err != nil {
+		http.Error(w, "Error generating account ID", http.StatusInternalServerError)
+		return
+	}
 
-	// // Hash the password
-	// hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.HashedPassword), bcrypt.DefaultCost)
-	// if err != nil {
-	// 	http.Error(w, "Error hashing password", http.StatusInternalServerError)
-	// 	return
-	// }
+	// Hash the password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.HashedPassword), bcrypt.DefaultCost)
+	if err != nil {
+		http.Error(w, "Error hashing password", http.StatusInternalServerError)
+		return
+	}
 
-	// user.HashedPassword = string(hashedPassword)
+	user.HashedPassword = string(hashedPassword)
 
-	// // Set the initial KYC status to Pending
-	// user.KYCStatus = models.KYCStatusPending
+	// Set the initial KYC status to Pending
+	user.KYCStatus = models.KYCStatusPending
 
-	// // Save the user in memory
-	// db.Users[user.Email] = user
+	// Save the user
+	err = db.AddUser(&user)
+	if err != nil {
+		http.Error(w, "User already exists", http.StatusConflict)
+		return
+	}
 
 	userCreatedEvent := events.UserCreatedEvent{
 		AccountId: user.AccountId,
