@@ -73,27 +73,28 @@ func HandlerRefreshToken(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Set new cookies
-	http.SetCookie(w, &http.Cookie{
-		Name:     "access_token",
-		Value:    newAccessToken,
-		HttpOnly: false,
-		Secure:   false,
-		SameSite: http.SameSiteStrictMode,
-		Path:     "/",
-		MaxAge:   900, // 15 minutes
-	})
+	// // Set new cookies
+	// http.SetCookie(w, &http.Cookie{
+	// 	Name:     "access_token",
+	// 	Value:    newAccessToken,
+	// 	HttpOnly: false,
+	// 	Secure:   false,
+	// 	SameSite: http.SameSiteStrictMode,
+	// 	Path:     "/",
+	// 	MaxAge:   900, // 15 minutes
+	// })
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     "refresh_token",
-		Value:    newRefreshToken,
-		HttpOnly: false,
-		Secure:   false,
-		SameSite: http.SameSiteStrictMode,
-		Path:     "/",
-		MaxAge: 604800, // 7 days
-	})
-
+	// http.SetCookie(w, &http.Cookie{
+	// 	Name:     "refresh_token",
+	// 	Value:    newRefreshToken,
+	// 	HttpOnly: false,
+	// 	Secure:   false,
+	// 	SameSite: http.SameSiteStrictMode,
+	// 	Path:     "/",
+	// 	MaxAge: 604800, // 7 days
+	// })
+	utils.SetCookie(w, "access_token", newAccessToken, 15*60) // 15 minutes
+	utils.SetCookie(w, "refresh_token", newRefreshToken, 7*24*60*60)
 	// Send the response
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{

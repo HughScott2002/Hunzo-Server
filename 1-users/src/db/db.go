@@ -6,13 +6,17 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
 	"example.com/m/v2/src/models"
 	"github.com/go-redis/redis/v8"
 )
+
+var db Database
 
 type Database interface {
 	AddUser(user *models.User) error
@@ -52,11 +56,9 @@ type FutureDB struct {
 	// Placeholder for future database implementation
 }
 
-var db Database
-
 func Init() error {
-	env := os.Getenv("ENVIRONMENT")
-	mode := os.Getenv("MODE")
+	env := strings.ToLower(os.Getenv("ENVIRONMENT"))
+	mode := strings.ToLower(os.Getenv("MODE"))
 
 	switch {
 	case env == "local" && mode == "memcached":
@@ -65,7 +67,7 @@ func Init() error {
 			sessions:      make(map[string]models.Session),
 			refreshTokens: make(map[string]RefreshTokenInfo),
 		}
-	case env == "local" && mode == "redis":
+	case env == "local" && mode != "memcached":
 		redisPassword := os.Getenv("USER_REDIS_PASSWORD")
 		redisAddr := fmt.Sprintf("user-redis:%s", os.Getenv("USER_REDIS_PORT"))
 		redisClient := redis.NewClient(&redis.Options{
@@ -74,11 +76,11 @@ func Init() error {
 			DB:       0,
 		})
 		db = &RedisDB{client: redisClient}
-		fmt.Println("USING REDIS")
+		log.Println("USING DB & REDIS IN USER SERIVCE")
 	case env == "local" && mode == "db":
 		// Placeholder for future database implementation
 		db = &FutureDB{}
-	case env == "prod" || env == "PROD":
+	case env == "prod" || env == "production":
 		// Placeholder for future database implementation
 		db = &FutureDB{}
 	default:

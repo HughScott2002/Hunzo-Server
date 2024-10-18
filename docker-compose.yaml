@@ -52,6 +52,8 @@ services:
     environment:
       - WALLET_REDIS_PASSWORD=${WALLET_REDIS_PASSWORD}
       - WALLET_REDIS_PORT=${WALLET_REDIS_PORT}
+      - ENVIRONMENT=${ENVIRONMENT}
+      - MODE=${MODE}
 
   user-redis:
     image: redis:alpine

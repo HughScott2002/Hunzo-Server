@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"example.com/m/v2/src/db"
+	"example.com/m/v2/src/utils"
 )
 
 func HandlerLogout(w http.ResponseWriter, r *http.Request) {
@@ -31,23 +32,25 @@ func HandlerLogout(w http.ResponseWriter, r *http.Request) {
 		db.DeleteRefreshToken(refreshToken)
 	}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     "access_token",
-		Value:    "",
-		HttpOnly: false,
-		Secure:   false,
-		SameSite: http.SameSiteStrictMode,
-		MaxAge:   -1,
-	})
+	// http.SetCookie(w, &http.Cookie{
+	// 	Name:     "access_token",
+	// 	Value:    "",
+	// 	HttpOnly: false,
+	// 	Secure:   false,
+	// 	SameSite: http.SameSiteStrictMode,
+	// 	MaxAge:   -1,
+	// })
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     "refresh_token",
-		Value:    "",
-		HttpOnly: false,
-		Secure:   false,
-		SameSite: http.SameSiteStrictMode,
-		MaxAge:   -1,
-	})
+	// http.SetCookie(w, &http.Cookie{
+	// 	Name:     "refresh_token",
+	// 	Value:    "",
+	// 	HttpOnly: false,
+	// 	Secure:   false,
+	// 	SameSite: http.SameSiteStrictMode,
+	// 	MaxAge:   -1,
+	// })
+	utils.SetCookie(w, "access_token", "", -1) // 15 minutes
+	utils.SetCookie(w, "refresh_token", "", -1)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{"message": "Logged out successfully"})

@@ -103,28 +103,29 @@ func HandlerRegister(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Set cookies
-	http.SetCookie(w, &http.Cookie{
-		Name:     "access_token",
-		Value:    accessToken,
-		HttpOnly: false,
-		Secure:   false,
-		Path:     "/",
+	// http.SetCookie(w, &http.Cookie{
+	// 	Name:     "access_token",
+	// 	Value:    accessToken,
+	// 	HttpOnly: false,
+	// 	Secure:   false,
+	// 	Path:     "/",
 
-		SameSite: http.SameSiteStrictMode,
-		MaxAge:   900, // 15 minutes
-	})
+	// 	SameSite: http.SameSiteStrictMode,
+	// 	MaxAge:   900, // 15 minutes
+	// })
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     "refresh_token",
-		Value:    refreshToken,
-		HttpOnly: false,
-		Secure:   false,
-		Path:     "/",
+	// http.SetCookie(w, &http.Cookie{
+	// 	Name:     "refresh_token",
+	// 	Value:    refreshToken,
+	// 	HttpOnly: false,
+	// 	Secure:   false,
+	// 	Path:     "/",
 
-		SameSite: http.SameSiteStrictMode,
-		MaxAge:   604800, // 7 days
-	})
-
+	// 	SameSite: http.SameSiteStrictMode,
+	// 	MaxAge:   604800, // 7 days
+	// })
+	utils.SetCookie(w, "access_token", accessToken, 15*60) // 15 minutes
+	utils.SetCookie(w, "refresh_token", refreshToken, 7*24*60*60)
 	// // Create a response object
 	// response := map[string]string{
 	// 	"message":   "User registered successfully",

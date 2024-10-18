@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 
-	"example.com/m/v2/src/db"
 	"example.com/m/v2/src/events"
 	"example.com/m/v2/src/server/handlers"
 	"github.com/go-chi/chi"
@@ -14,10 +13,10 @@ import (
 
 func main() {
 	// Initialize Redis
-	db.InitRedis()
+	// db.InitRedis()
 
 	// Start Redis health check routine
-	go db.RedisHealthCheck()
+	// go db.RedisHealthCheck()
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)

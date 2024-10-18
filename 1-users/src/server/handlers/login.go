@@ -59,8 +59,11 @@ func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error generating AccountId", http.StatusInternalServerError)
 		return
 	}
+
+	//Check if a session already exists
+	//
 	session := &models.Session{
-		ID:          accountId, // Implement this function
+		ID:          accountId,
 		UserEmail:   storedUser.Email,
 		DeviceInfo:  deviceInfo,
 		Token:       refreshToken,
@@ -83,26 +86,28 @@ func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error storing refresh token", http.StatusInternalServerError)
 		return
 	}
+	// Set cookies
+	utils.SetCookie(w, "access_token", accessToken, 15*60)        // 15 minutes
+	utils.SetCookie(w, "refresh_token", refreshToken, 7*24*60*60) // 7 days
+	// http.SetCookie(w, &http.Cookie{
+	// 	Name:     "access_token",
+	// 	Value:    accessToken,
+	// 	HttpOnly: false,
+	// 	Secure:   false,
+	// 	SameSite: http.SameSiteStrictMode,
+	// 	Path:     "/",
+	// 	MaxAge:   900, // 15 minutes
+	// })
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     "access_token",
-		Value:    accessToken,
-		HttpOnly: false,
-		Secure:   false,
-		SameSite: http.SameSiteStrictMode,
-		Path:     "/",
-		MaxAge:   900, // 15 minutes
-	})
-
-	http.SetCookie(w, &http.Cookie{
-		Name:     "refresh_token",
-		Value:    refreshToken,
-		HttpOnly: false,
-		Secure:   false,
-		SameSite: http.SameSiteStrictMode,
-		Path:     "/",
-		MaxAge:   604800, // 7 days
-	})
+	// http.SetCookie(w, &http.Cookie{
+	// 	Name:     "refresh_token",
+	// 	Value:    refreshToken,
+	// 	HttpOnly: false,
+	// 	Secure:   false,
+	// 	SameSite: http.SameSiteStrictMode,
+	// 	Path:     "/",
+	// 	MaxAge:   604800, // 7 days
+	// })
 
 	userData := map[string]interface{}{
 		"user": map[string]string{

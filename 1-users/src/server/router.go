@@ -8,7 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-// TODO: FIX AUTH REFRESH
+// TODO: FIX THE AUTH,
 // TODO: SEND BACK RELIVANT USER DATA TO THE CLIENT
 // TODO: Fix the rate limiter
 func Router() http.Handler {
