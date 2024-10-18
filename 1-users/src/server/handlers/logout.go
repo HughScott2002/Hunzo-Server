@@ -34,8 +34,8 @@ func HandlerLogout(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     "access_token",
 		Value:    "",
-		HttpOnly: true,
-		Secure:   true,
+		HttpOnly: false,
+		Secure:   false,
 		SameSite: http.SameSiteStrictMode,
 		MaxAge:   -1,
 	})
@@ -43,8 +43,8 @@ func HandlerLogout(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     "refresh_token",
 		Value:    "",
-		HttpOnly: true,
-		Secure:   true,
+		HttpOnly: false,
+		Secure:   false,
 		SameSite: http.SameSiteStrictMode,
 		MaxAge:   -1,
 	})

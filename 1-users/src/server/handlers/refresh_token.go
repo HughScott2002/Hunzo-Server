@@ -77,19 +77,21 @@ func HandlerRefreshToken(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     "access_token",
 		Value:    newAccessToken,
-		HttpOnly: true,
-		Secure:   true,
+		HttpOnly: false,
+		Secure:   false,
 		SameSite: http.SameSiteStrictMode,
+		Path:     "/",
 		MaxAge:   900, // 15 minutes
 	})
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     "refresh_token",
 		Value:    newRefreshToken,
-		HttpOnly: true,
-		Secure:   true,
+		HttpOnly: false,
+		Secure:   false,
 		SameSite: http.SameSiteStrictMode,
-		MaxAge:   604800, // 7 days
+		Path:     "/",
+		MaxAge: 604800, // 7 days
 	})
 
 	// Send the response

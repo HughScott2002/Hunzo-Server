@@ -87,18 +87,20 @@ func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     "access_token",
 		Value:    accessToken,
-		HttpOnly: true,
-		Secure:   true,
+		HttpOnly: false,
+		Secure:   false,
 		SameSite: http.SameSiteStrictMode,
+		Path:     "/",
 		MaxAge:   900, // 15 minutes
 	})
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     "refresh_token",
 		Value:    refreshToken,
-		HttpOnly: true,
-		Secure:   true,
+		HttpOnly: false,
+		Secure:   false,
 		SameSite: http.SameSiteStrictMode,
+		Path:     "/",
 		MaxAge:   604800, // 7 days
 	})
 
