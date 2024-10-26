@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 
 	"example.com/m/v2/src/db"
 	"example.com/m/v2/src/server"
+	"example.com/m/v2/src/server/handlers"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
@@ -46,8 +46,8 @@ func main() {
 	//Everything in the service needs to start with /api/users to be properly routed
 	r.Route("/api/users", func(r chi.Router) {
 		r.Mount("/auth", server.Router())
-		r.Post("/dump", HandlerDump)
-		r.Get("/health", HandlerHealth)
+		r.Post("/dump", handlers.HandlerDump)
+		r.Get("/health", handlers.HandlerHealth)
 		// r.Route("/account", func(r chi.Router) {
 		// 	r.Get("/update", HandlerPlaceHolder)
 		// })
@@ -60,22 +60,4 @@ func main() {
 
 func HandlerPlaceHolder(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte{})
-}
-
-func HandlerDump(w http.ResponseWriter, r *http.Request) {
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		http.Error(w, "Failed to read request body", http.StatusBadRequest)
-		return
-	}
-	defer r.Body.Close()
-
-	fmt.Printf("%s\n", body)
-	w.WriteHeader(http.StatusOK)
-	w.Write(body)
-}
-
-func HandlerHealth(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("()"))
 }

@@ -1,10 +1,14 @@
-package events
+package consumer
 
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
+	"os"
+	"strings"
 
+	"example.com/m/v2/src/models"
 	"example.com/m/v2/src/models/events"
 	"github.com/segmentio/kafka-go"
 )
@@ -34,10 +38,10 @@ func ConsumeAccountCreatedEvents() {
 			continue
 		}
 
-		// models.Wallet{
-		// 	WalletId: ,
-		// }
+		
 
-		// db.AddWallet()
+		
+
+		db.AddWallet()
 	}
 }

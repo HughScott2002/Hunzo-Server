@@ -14,18 +14,21 @@ const (
 )
 
 type User struct {
-	AccountId      string    `json:"accountId"`
-	FirstName      string    `json:"firstName"`
-	LastName       string    `json:"lastName"`
-	Address        string    `json:"address"`
-	City           string    `json:"city"`
-	State          string    `json:"state"`
-	PostalCode     string    `json:"postalCode"`
-	DOB            string    `json:"dob"`
-	SSN            string    `json:"ssn"`
-	Email          string    `json:"email"`
-	HashedPassword string    `json:"password"`
-	KYCStatus      KYCStatus `json:"kycstatus"`
+	AccountId         string    `json:"accountId"`
+	FirstName         string    `json:"firstName"`
+	LastName          string    `json:"lastName"`
+	Address           string    `json:"address"`
+	City              string    `json:"city"`
+	State             string    `json:"state"`
+	Country           string    `json:"country"`
+	Currency          string    `json:"currency"`
+	PostalCode        string    `json:"postalCode"`
+	DOB               string    `json:"dob"`
+	GovId             string    `json:"govId"`
+	Email             string    `json:"email"`
+	HashedPassword    string    `json:"password"`
+	KYCStatus         KYCStatus `json:"kycstatus"`
+	DataAuthorization bool      `json:"dataAuthorization"`
 }
 
 func (s KYCStatus) String() string {
