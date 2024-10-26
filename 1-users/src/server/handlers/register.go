@@ -9,15 +9,12 @@ import (
 	"time"
 
 	"example.com/m/v2/src/db"
-	"example.com/m/v2/src/db/services"
 	"example.com/m/v2/src/events/producer"
 	"example.com/m/v2/src/models"
 	"example.com/m/v2/src/models/events"
 	"example.com/m/v2/src/utils"
 	"golang.org/x/crypto/bcrypt"
 )
-
-var userService = services.NewUserService()
 
 func HandlerRegister(w http.ResponseWriter, r *http.Request) {
 	//Change
@@ -77,7 +74,7 @@ func HandlerRegister(w http.ResponseWriter, r *http.Request) {
 		KYCStatus: user.KYCStatus,
 	}
 
-	err = producer.ProduceUserCreatedEvent(userCreatedEvent)
+	err = producer.ProduceAccountCreatedEvent(userCreatedEvent)
 	if err != nil {
 		log.Printf("failed to produce user created event: %v", err)
 	}
