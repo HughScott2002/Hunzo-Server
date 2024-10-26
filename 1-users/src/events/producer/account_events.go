@@ -11,12 +11,12 @@ import (
 )
 
 const (
-	userCreatedTopic = "user-created"
+	userCreatedTopic = "account-created"
 	kafkaBroker      = "broker:9092"
 	kafkaPartition   = 0
 )
 
-func ProduceUserCreatedEvent(event events.UserCreatedEvent) error {
+func ProduceUserCreatedEvent(event events.AccountCreatedEvent) error {
 	conn, err := kafka.DialLeader(context.Background(), "tcp", kafkaBroker, userCreatedTopic, kafkaPartition)
 	if err != nil {
 		return fmt.Errorf("failed to dail leader: %v", err)

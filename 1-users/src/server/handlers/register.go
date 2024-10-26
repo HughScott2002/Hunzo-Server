@@ -72,9 +72,9 @@ func HandlerRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userCreatedEvent := events.UserCreatedEvent{
+	userCreatedEvent := events.AccountCreatedEvent{
 		AccountId: user.AccountId,
-		Email:     user.Email,
+		KYCStatus: user.KYCStatus,
 	}
 
 	err = producer.ProduceUserCreatedEvent(userCreatedEvent)

@@ -10,8 +10,8 @@ import (
 
 func GetWallet(w http.ResponseWriter, r *http.Request) {
 	accountId := chi.URLParam(r, "accountId")
-	wallet, exists := db.Wallets[accountId]
-	if !exists {
+	wallet, err := db.GetWallet(accountId)
+	if err != nil {
 		http.Error(w, "Wallet not found", http.StatusNotFound)
 		return
 	}

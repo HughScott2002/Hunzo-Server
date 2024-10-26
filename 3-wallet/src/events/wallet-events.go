@@ -6,14 +6,13 @@ import (
 	"log"
 
 	"example.com/m/v2/src/models/events"
-	"example.com/m/v2/src/utils"
 	"github.com/segmentio/kafka-go"
 )
 
-func ConsumeUserCreatedEvents() {
+func ConsumeAccountCreatedEvents() {
 	reader := kafka.NewReader(kafka.ReaderConfig{
 		Brokers:   []string{"broker:9092"},
-		Topic:     "user-created",
+		Topic:     "account-created",
 		GroupID:   "wallet-service",
 		Partition: 0,
 	})
@@ -27,13 +26,18 @@ func ConsumeUserCreatedEvents() {
 			continue
 		}
 
-		var event events.UserCreatedEvent
+		var event events.AccountCreatedEvent
 		err = json.Unmarshal(msg.Value, &event)
+		// AccountId, KYCStatus
 		if err != nil {
 			log.Printf("Error unmarshaling event: %v", err)
 			continue
 		}
 
-		utils.CreateWallet(event.AccountId)
+		// models.Wallet{
+		// 	WalletId: ,
+		// }
+
+		// db.AddWallet()
 	}
 }

@@ -11,23 +11,22 @@ import (
 
 var RedisClient *redis.Client
 
-func InitRedis() {
+func InitRedis() (*redis.Client, error) {
 	redisPassword := os.Getenv("WALLET_REDIS_PASSWORD")
+	redisPort := os.Getenv("WALLET_REDIS_PORT")
 	if redisPassword == "" {
 		panic("WALLET_REDIS_PASSWORD environment variable is not set")
 	}
 
 	RedisClient = redis.NewClient(&redis.Options{
-		Addr:     "wallet-redis:6379",
+		Addr:     "wallet-redis:" + redisPort,
 		Password: redisPassword,
 		DB:       0,
 	})
 
 	ctx := context.Background()
 	_, err := RedisClient.Ping(ctx).Result()
-	if err != nil {
-		panic("Failed to connect to Redis: " + err.Error())
-	}
+	return RedisClient, err
 }
 func RedisHealthCheck() {
 	ticker := time.NewTicker(30 * time.Second)

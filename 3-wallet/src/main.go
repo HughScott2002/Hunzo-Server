@@ -12,19 +12,15 @@ import (
 )
 
 func main() {
-	// Initialize Redis
-	// db.InitRedis()
-
-	// Start Redis health check routine
-	// go db.RedisHealthCheck()
-
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 
 	// Start the Kafka consumer in a separate goroutine
-	go events.ConsumeUserCreatedEvents()
+	go events.ConsumeAccountCreatedEvents()
 
-	r.Get("/api/wallets/{accountId}", handlers.GetWallet)
+	r.Route("/api/wallets", func(r chi.Router) {
+		r.Get("/{accountId}", handlers.GetWallet)
+	})
 
 	fmt.Println("Wallet server is running on Port 8080")
 	log.Fatal(http.ListenAndServe(":8080", r))
