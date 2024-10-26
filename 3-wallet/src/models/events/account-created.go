@@ -2,6 +2,6 @@ package events
 
 type AccountCreatedEvent struct {
 	AccountId string `json:"accountId"`
-	// Email     string `json:"email"`
+	Currency  string `json:"currency"`
 	KYCStatus string `json:"kycstatus"`
 }
