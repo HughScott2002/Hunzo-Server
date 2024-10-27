@@ -13,9 +13,7 @@ import (
 	"github.com/go-chi/cors"
 )
 
-//TODO: Use bcrypt or Argon2 for password hashing and salting.
 //TODO: Implement rate limiting on login attempts to prevent brute-force attacks.
-//TODO: Use secure session management techniques.
 
 //JWT
 //TODO: Use strong, randomly generated secrets for signing JWTs

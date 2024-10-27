@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 
+	"example.com/m/v2/src/db"
+	"example.com/m/v2/src/events"
 	"example.com/m/v2/src/events/consumer"
 	"example.com/m/v2/src/server/handlers"
 	"github.com/go-chi/chi"
@@ -15,11 +17,22 @@ func main() {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 
-	// Start the Kafka consumer in a separate goroutine
-	go consumer.ConsumeAccountCreatedEvents()
+	db.Init()
+
+	runKafkaRouties := true
+	err := events.List_topics()
+	if err != nil {
+		fmt.Printf("%s", err.Error())
+		runKafkaRouties = false
+	}
+	if runKafkaRouties {
+		// Start the Kafka consumer in a separate goroutine
+		go consumer.ConsumeAccountCreatedEvents()
+	}
 
 	r.Route("/api/wallets", func(r chi.Router) {
-		r.Get("/{accountId}", handlers.GetWallet)
+		r.Get("/{walletId}", handlers.GetWallet)
+		r.Get("/list/{accountId}", handlers.ListWallets)
 	})
 
 	fmt.Println("Wallet server is running on Port 8080")

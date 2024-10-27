@@ -8,13 +8,14 @@ import (
 	"github.com/go-chi/chi"
 )
 
-func GetWallet(w http.ResponseWriter, r *http.Request) {
-	walletId := chi.URLParam(r, "walletId")
-	wallet, err := db.GetWallet(walletId)
+func ListWallets(w http.ResponseWriter, r *http.Request) {
+	accountId := chi.URLParam(r, "accountId")
+	wallet, err := db.ListWallets(accountId)
 	if err != nil {
-		http.Error(w, "Wallet not found", http.StatusNotFound)
+		http.Error(w, "No Wallets Found", http.StatusNotFound)
 		return
 	}
+	
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(wallet)

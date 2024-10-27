@@ -17,9 +17,9 @@ func InitRedis() (*redis.Client, error) {
 	if redisPassword == "" {
 		panic("WALLET_REDIS_PASSWORD environment variable is not set")
 	}
-
+	initAddr := "wallet-redis:" + redisPort
 	RedisClient = redis.NewClient(&redis.Options{
-		Addr:     "wallet-redis:" + redisPort,
+		Addr:     initAddr,
 		Password: redisPassword,
 		DB:       0,
 	})

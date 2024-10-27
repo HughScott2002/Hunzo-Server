@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 // WalletStatus represents the current status of a wallet
 type WalletStatus string
@@ -15,9 +17,9 @@ const (
 type WalletType string
 
 const (
-	WalletTypePrimary WalletType = "primary"
-	WalletTypeSavings WalletType = "savings"
-	WalletTypeEscrow  WalletType = "escrow"
+	WalletTypePrimary WalletType = "PRIMARY"
+	WalletTypeSavings WalletType = "SAVINGS"
+	WalletTypeEscrow  WalletType = "ESCROW"
 )
 
 // Currency represents supported currencies
@@ -33,10 +35,10 @@ const (
 
 // Wallet represents a user's wallet in the system
 type Wallet struct {
-	WalletId     string       `json:"walletId"`// Id for the wallet
+	WalletId     string       `json:"walletId"`  // Id for the wallet
 	AccountId    string       `json:"accountId"` // Id for the account it belongs too
-	Type         WalletType   `json:"type"` // Type of wallet, savings, primary,
-	Balance      float64      `json:"balance"` // Amount in the wallet
+	Type         WalletType   `json:"type"`      // Type of wallet, savings, primary,
+	Balance      float64      `json:"balance"`   // Amount in the wallet
 	Currency     Currency     `json:"currency"`
 	Status       WalletStatus `json:"status"` //active, invactive
 	IsDefault    bool         `json:"isDefault"`

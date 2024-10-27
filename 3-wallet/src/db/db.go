@@ -37,7 +37,7 @@ func Init() error {
 	switch {
 	case env == "local" && mode == "memcached":
 		db = implementations.NewMemoryImplementation()
-	case env == "local" && mode != "memcached":
+	case env == "local" && mode != "redis":
 		RedisClient, err := InitRedis()
 		if err != nil {
 			panic("Failed to connect to Redis: " + err.Error())

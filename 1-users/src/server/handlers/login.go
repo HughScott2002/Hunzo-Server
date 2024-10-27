@@ -36,7 +36,7 @@ func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(storedUser.HashedPassword), []byte(loginRequest.HashedPassword))
+	err = bcrypt.CompareHashAndPassword([]byte(storedUser.HashedPassword), []byte(loginRequest.UnHashedPassword))
 	if err != nil {
 		http.Error(w, "Invalid password", http.StatusUnauthorized)
 		return

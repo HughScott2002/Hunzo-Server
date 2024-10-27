@@ -71,6 +71,7 @@ func HandlerRegister(w http.ResponseWriter, r *http.Request) {
 
 	userCreatedEvent := events.AccountCreatedEvent{
 		AccountId: user.AccountId,
+		Currency:  user.Currency,
 		KYCStatus: user.KYCStatus,
 	}
 
@@ -78,8 +79,7 @@ func HandlerRegister(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("failed to produce user created event: %v", err)
 	}
-
-	//TODO: DEAL WITH SESSION TOKENS (Probably should be on the user object)
+	log.Printf("KAKFA EVENT account-created sent acc#: %s", userCreatedEvent.AccountId)
 	// Generate access token
 	accessToken, err := utils.GenerateAccessToken(user.Email)
 	if err != nil {
