@@ -267,7 +267,7 @@ func (r *Redis) FreezeWallet(accountId string) error {
 	pipe := r.client.Pipeline()
 
 	for _, wallet := range wallets {
-		wallet.Status = models.WalletStatusFrozen
+		wallet.Status = models.WalletStatusInactive
 		wallet.UpdatedAt = time.Now()
 
 		data, err := json.Marshal(wallet)

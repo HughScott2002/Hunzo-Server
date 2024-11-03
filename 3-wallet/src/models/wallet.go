@@ -9,7 +9,7 @@ type WalletStatus string
 
 const (
 	WalletStatusActive    WalletStatus = "active"
-	WalletStatusFrozen    WalletStatus = "frozen"
+	WalletStatusInactive  WalletStatus = "inactive"
 	WalletStatusSuspended WalletStatus = "suspended"
 )
 

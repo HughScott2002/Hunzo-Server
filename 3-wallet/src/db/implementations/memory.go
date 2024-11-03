@@ -171,7 +171,7 @@ func (m *MemoryImplementation) FreezeWallet(accountId string) error {
 	updated := false
 	for _, wallet := range m.wallets {
 		if wallet.AccountId == accountId {
-			wallet.Status = models.WalletStatusFrozen
+			wallet.Status = models.WalletStatusInactive
 			wallet.UpdatedAt = time.Now()
 			updated = true
 		}

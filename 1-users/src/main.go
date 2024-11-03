@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"example.com/m/v2/src/db"
+	"example.com/m/v2/src/events/producer"
 	"example.com/m/v2/src/server"
 	"example.com/m/v2/src/server/handlers"
 	"github.com/go-chi/chi/v5"
@@ -28,6 +29,7 @@ func main() {
 	}
 	r := chi.NewRouter()
 
+	go producer.TestProducer()
 	// Middleware
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
