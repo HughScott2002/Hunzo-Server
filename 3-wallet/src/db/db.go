@@ -40,7 +40,8 @@ func Init() error {
 	case env == "local" && mode != "redis":
 		RedisClient, err := InitRedis()
 		if err != nil {
-			panic("Failed to connect to Redis: " + err.Error())
+			// panic("Failed to connect to Redis: " + err.Error())
+			return fmt.Errorf("Failed to connect to Redis: " + err.Error())
 		}
 		db = implementations.RedisImplementation(RedisClient)
 		log.Println("USING REDIS IN WALLET SERVICE")

@@ -8,16 +8,15 @@ import (
 	"time"
 
 	"example.com/m/v2/src/db"
+	"example.com/m/v2/src/events"
 	"example.com/m/v2/src/models"
-	"example.com/m/v2/src/models/events"
+	eventsModel "example.com/m/v2/src/models/events"
 	"example.com/m/v2/src/utils"
 	"github.com/segmentio/kafka-go"
 )
 
-const (
-	topic         = "account-created"
-	consumerGroup = "wallet-service"
-)
+//TODO: Add a Dead Message Queue
+
 
 // func createReaderWithRetries(ctx context.Context) (*kafka.Reader, error) {
 
@@ -58,45 +57,14 @@ const (
 //	}
 //
 // Ensure topic exists before starting consumer
-func ensureTopic(ctx context.Context) error {
-	conn, err := kafka.DialContext(ctx, "tcp", "broker:9092")
-	if err != nil {
-		return fmt.Errorf("failed to dial: %v", err)
-	}
-	defer conn.Close()
-
-	// Create topic with 3 partitions
-	topicConfigs := []kafka.TopicConfig{
-		{
-			Topic:             topic,
-			NumPartitions:     3,
-			ReplicationFactor: 1,
-		},
-	}
-
-	err = conn.CreateTopics(topicConfigs...)
-	if err != nil && err.(kafka.Error) != kafka.TopicAlreadyExists {
-		return fmt.Errorf("failed to create topic: %v", err)
-	}
-
-	return nil
-}
 
 func ConsumeAccountCreatedEvents(ctx context.Context) error {
-
-	// First ensure topic exists
-	for i := 0; i < 5; i++ {
-		if err := ensureTopic(ctx); err == nil {
-			break
-		}
-		time.Sleep(time.Second * 2)
-	}
 
 	// Configure the reader with more reasonable timeouts
 	reader := kafka.NewReader(kafka.ReaderConfig{
 		Brokers:               []string{"broker:9092"},
-		GroupID:               consumerGroup,
-		Topic:                 topic,
+		GroupID:               events.ConsumerGroup,
+		Topic:                 events.Topic,
 		MinBytes:              10e3,
 		MaxBytes:              10e6,
 		MaxWait:               3 * time.Second,
@@ -109,7 +77,7 @@ func ConsumeAccountCreatedEvents(ctx context.Context) error {
 	})
 	defer reader.Close()
 
-	log.Printf("Started consuming topic: %s with group: %s", topic, consumerGroup)
+	log.Printf("Started consuming topic: %s with group: %s", events.Topic, events.ConsumerGroup)
 
 	for {
 		select {
@@ -158,7 +126,7 @@ func ConsumeAccountCreatedEvents(ctx context.Context) error {
 func processMessage(msg kafka.Message) error {
 	log.Printf("Processing message with key: %s", string(msg.Key))
 
-	var event events.AccountCreatedEvent
+	var event eventsModel.AccountCreatedEvent
 	if err := json.Unmarshal(msg.Value, &event); err != nil {
 		return fmt.Errorf("failed to unmarshal event: %v", err)
 	}

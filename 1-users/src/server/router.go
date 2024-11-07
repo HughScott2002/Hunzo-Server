@@ -8,8 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-// TODO: FIX THE AUTH,
-// TODO: SEND BACK RELIVANT USER DATA TO THE CLIENT
+// TODO: FIX THE AUTH, it needs to accept tokens on each request and make sure its vaild
 // TODO: Fix the rate limiter
 func Router() http.Handler {
 	r := chi.NewRouter()

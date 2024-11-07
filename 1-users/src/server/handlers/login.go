@@ -116,6 +116,8 @@ func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 			"firstName": storedUser.FirstName,
 			"lastName":  storedUser.LastName,
 			"kycStatus": storedUser.KYCStatus.String(),
+			// "access_token": accessToken,
+			// "refresh_token": refreshToken,
 		},
 	}
 
