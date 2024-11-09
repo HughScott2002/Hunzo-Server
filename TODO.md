@@ -1,11 +1,3 @@
-1-users
-2-notification
-3-wallet
-4-cards
-5-compliance
-6-payments
-7-transaction
-
 Recommendations for a complete security architecture:
 
 Multi-Layer Security:
