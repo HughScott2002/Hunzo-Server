@@ -38,12 +38,12 @@ Hunzo offers a comprehensive suite of USDC banking features through an intuitive
 ## Technology Stack
 Hunzo leverages a robust and scalable technology stack to ensure reliability, performance, and security:
 
-- **Kafka**: Used for real-time data streaming and event-driven architecture
+- **NGINX**: High-performance web server and reverse proxy for efficient request handling
 - **Golang**: The primary programming language for backend services
+- **Kafka**: Used for real-time data streaming and event-driven architecture
 - **Redis**: Utilized for fast in-memory caching and data storage
 - **Docker & Docker Compose**: Containerization and orchestration for streamlined deployment and scalability
-- **NGINX**: High-performance web server and reverse proxy for efficient request handling
-- **Cassandra**: Distributed NoSQL database for handling large volumes of data with high availability and fault torlance
+- **Cassandra**: Distributed NoSQL database for handling large volumes of data with high availability and fault tolerant
 - ...and more
 
 ## Microservices Architecture
