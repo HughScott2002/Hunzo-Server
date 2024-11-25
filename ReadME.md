@@ -30,10 +30,10 @@
 
 
 ## Overview
-Hunzo is a modern fintech platform providing advanced USDC banking solutions. Our platform combines the innovation of digital assets with traditional banking experiences to deliver seamless financial services.
+Hunzo is a modern fintech platform providing advanced banking solutions. Our platform combines the innovation of digital assets with traditional banking experiences to deliver seamless financial services.
 
 ## About the Platform
-Hunzo offers a comprehensive suite of USDC banking features through an intuitive, user-friendly interface. Our platform is designed to bridge the gap between traditional banking and digital asset management.
+Hunzo offers a comprehensive suite of banking features through an intuitive, user-friendly interface. Our platform is designed to bridge the gap between traditional banking and digital asset management.
 
 ## Technology Stack
 Hunzo leverages a robust and scalable technology stack to ensure reliability, performance, and security:
@@ -51,10 +51,10 @@ Hunzo adopts a microservices-based architecture to ensure modularity, scalabilit
 
 1. **Users**: Handles user authentication, authorization, and profile management
 2. **Notifications**: Manages real-time notifications and communication with users
-3. **Wallet**: Facilitates USDC wallet management, including deposits, withdrawals, and balance tracking
+3. **Wallet**: Facilitates wallet management, including deposits, withdrawals, and balance tracking
 4. **Cards**: Enables virtual and physical card issuance and management
 5. **Compliance**: Ensures regulatory compliance and performs necessary checks and verifications
-6. **Payments**: Handles payment processing, including USDC transactions and integrations with external payment gateways
+6. **Payments**: Handles payment processing, including transactions and integrations with external payment gateways
 7. **Transactions**: Manages and records all financial transactions within the platform
 
 These microservices communicate and collaborate through well-defined APIs and event-driven interactions, enabling a decoupled and resilient system architecture.
@@ -67,7 +67,7 @@ These microservices communicate and collaborate through well-defined APIs and ev
 - Users should exercise due diligence when using our services
 - Any banking operations conducted through the platform are at the user's discretion
 
-We are committed to continuously improving and expanding the capabilities of Hunzo to deliver a secure, reliable, and user-centric USDC banking experience.
+We are committed to continuously improving and expanding the capabilities of Hunzo to deliver a secure, reliable, and user-centric banking experience.
 
 Join us on this exciting journey as we redefine the future of digital asset banking!
 
