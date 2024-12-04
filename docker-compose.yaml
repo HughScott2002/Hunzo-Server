@@ -134,8 +134,8 @@ services:
     volumes:
       - user_cassandra_data:/var/lib/cassandra
     healthcheck:
-      test: ["CMD", "cqlsh", "-e", "describe keyspaces"]
-      interval: 15s
+      test: ["CMD-SHELL", "nodetool status | grep UN"]
+      interval: 30s
       timeout: 10s
       retries: 10
     restart: always
@@ -155,7 +155,7 @@ services:
     volumes:
       - wallet_cassandra_data:/var/lib/cassandra
     healthcheck:
-      test: ["CMD", "cqlsh", "-e", "describe keyspaces"]
+      test: ["CMD-SHELL", "nodetool status | grep UN"]
       interval: 15s
       timeout: 10s
       retries: 10
