@@ -71,3 +71,4 @@ We are committed to continuously improving and expanding the capabilities of Hun
 
 Join us on this exciting journey as we redefine the future of digital asset banking!
 
+bash`docker compose --env-file .env.local up --build -d`

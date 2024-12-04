@@ -1,7 +1,7 @@
 services:
   localstack:
-    container_name: localstack"
-    image: localstack/localstack
+    container_name: "${LOCALSTACK_DOCKER_NAME:-localstack-main}"
+    image: localstack/localstack:4.0
     ports:
       - "127.0.0.1:4566:4566" # LocalStack Gateway
       - "127.0.0.1:4510-4559:4510-4559" # external services port range
@@ -11,6 +11,7 @@ services:
     volumes:
       - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
+
   broker:
     image: apache/kafka:3.7.0
     container_name: kafka
@@ -66,6 +67,8 @@ services:
         condition: service_healthy
       user-redis:
         condition: service_started
+      user-cassandra:
+        condition: service_healthy
     restart: always
     environment:
       - USER_REDIS_PASSWORD=${USER_REDIS_PASSWORD}
@@ -85,6 +88,8 @@ services:
         condition: service_healthy
       wallet-redis:
         condition: service_started
+      wallet-cassandra:
+        condition: service_healthy
     restart: on-failure:3
     environment:
       - WALLET_REDIS_PASSWORD=${WALLET_REDIS_PASSWORD}
@@ -114,11 +119,52 @@ services:
     restart: always
     command: redis-server --appendonly yes --requirepass ${WALLET_REDIS_PASSWORD}
 
+  user-cassandra:
+    image: cassandra:4.1
+    container_name: user-cassandra
+    ports:
+      - "${USER_CASSANDRA_PORT}:9042"
+    environment:
+      - CASSANDRA_CLUSTER_NAME=${USER_CASSANDRA_CLUSTER_NAME}
+      - CASSANDRA_KEYSPACE=${USER_CASSANDRA_KEYSPACE}
+      - CASSANDRA_DC=${USER_CASSANDRA_DC}
+      - CASSANDRA_ENDPOINT_SNITCH=SimpleSnitch
+      - MODE=${MODE}
+      - ENVIRONMENT=${ENVIRONMENT}
+    volumes:
+      - user_cassandra_data:/var/lib/cassandra
+    healthcheck:
+      test: ["CMD", "cqlsh", "-e", "describe keyspaces"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+    restart: always
+
+  wallet-cassandra:
+    image: cassandra:4.1
+    container_name: wallet-cassandra
+    ports:
+      - "${WALLET_CASSANDRA_PORT}:9042"
+    environment:
+      - CASSANDRA_CLUSTER_NAME=${WALLET_CASSANDRA_CLUSTER_NAME}
+      - CASSANDRA_KEYSPACE=${WALLET_CASSANDRA_KEYSPACE}
+      - CASSANDRA_DC=${WALLET_CASSANDRA_DC}
+      - CASSANDRA_ENDPOINT_SNITCH=SimpleSnitch
+      - MODE=${MODE}
+      - ENVIRONMENT=${ENVIRONMENT}
+    volumes:
+      - wallet_cassandra_data:/var/lib/cassandra
+    healthcheck:
+      test: ["CMD", "cqlsh", "-e", "describe keyspaces"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+    restart: always
+
 volumes:
   user_redis_data:
   wallet_redis_data:
+  user_cassandra_data:
+  wallet_cassandra_data:
   # Or if you need to persist docker.sock data
-  docker_sock:
-
-  # kafka_data:
-  # kafka_logs:
+  # docker_sock:
