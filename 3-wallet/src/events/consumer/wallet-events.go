@@ -72,7 +72,7 @@ func ConsumeAccountCreatedEvents(ctx context.Context) error {
 		HeartbeatInterval:     10 * time.Second,
 		SessionTimeout:        30 * time.Second,
 		StartOffset:           kafka.FirstOffset,
-		Logger:                kafka.LoggerFunc(log.Printf),
+		// Logger:                kafka.LoggerFunc(log.Printf),
 		WatchPartitionChanges: true,
 	})
 	defer reader.Close()

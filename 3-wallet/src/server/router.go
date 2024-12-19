@@ -7,6 +7,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 )
+// TODO: GET A LIST OF THE WALLETS AND EACH ATTACHED CARD
 
 func Router() http.Handler {
 	r := chi.NewRouter()
