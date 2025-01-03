@@ -50,7 +50,7 @@ type Wallet struct {
 	// Metadata     interface{}  `json:"metadata,omitempty"`
 }
 
-// // Transaction represents a wallet transaction
+// Transaction represents a wallet transaction
 // type Transaction struct {
 // 	ID          string    `json:"id"`
 // 	WalletID    string    `json:"walletId"`
@@ -64,7 +64,8 @@ type Wallet struct {
 // 	UpdatedAt   time.Time `json:"updatedAt"`
 // }
 
-// // Balance represents detailed balance information
+// Balance represents detailed balance information
+
 // type Balance struct {
 // 	Available float64 `json:"available"`
 // 	Pending   float64 `json:"pending"`

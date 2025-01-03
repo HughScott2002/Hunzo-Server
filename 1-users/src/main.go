@@ -21,6 +21,8 @@ import (
 //TODO: Include essential claims like 'exp' (expiration), 'iat' (issued at), and 'jti' (JWT ID).
 //TODO: Keep JWT payload minimal to reduce token size.
 
+//TODO: ADD PROGRESS TRACKER FOR 
+
 func main() {
 	// Initialize
 	err := db.Init()
