@@ -26,7 +26,7 @@ func Router() http.Handler {
 	r.Route("/api/wallets", func(r chi.Router) {
 		//Wallet by account
 		r.Get("/{walletId}", handlers.GetWallet)
-		r.Get("/list/{accountId}", handlers.ListWallets)
+		r.Get("/list/{accountId}", handlers.ListWallets) //List all the wallets
 		r.Get("/recover", func(http.ResponseWriter, *http.Request) { panic("foo") })
 	})
 
