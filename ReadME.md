@@ -13,7 +13,7 @@
   <div>
 
 [![License: CC BY-NC-ND 4.0](https://img.shields.io/badge/License-CC%20BY--NC--ND%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-nd/4.0/)
-  
+
 <div align="center">
  <div style="display: inline-flex; align-items: center; gap: 12px; background-color: #FFF2CF; padding: 8px 16px; border-radius: 6px; border: 1px solid #FFE69C;">
     <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#FFD166" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(1px 1px 0px rgba(0, 0, 0, 0.7)); transform: scale(1.2);" class="lucide lucide-octagon-alert">
@@ -27,15 +27,16 @@
   </div>
 </div>
 
-
-
 ## Overview
+
 Hunzo is a modern fintech platform providing advanced banking solutions. Our platform combines the innovation of digital assets with traditional banking experiences to deliver seamless financial services.
 
 ## About the Platform
+
 Hunzo offers a comprehensive suite of banking features through an intuitive, user-friendly interface. Our platform is designed to bridge the gap between traditional banking and digital asset management.
 
 ## Technology Stack
+
 Hunzo leverages a robust and scalable technology stack to ensure reliability, performance, and security:
 
 - **NGINX**: High-performance web server and reverse proxy for efficient request handling
@@ -47,6 +48,7 @@ Hunzo leverages a robust and scalable technology stack to ensure reliability, pe
 - ...and more
 
 ## Microservices Architecture
+
 Hunzo adopts a microservices-based architecture to ensure modularity, scalability, and fault tolerance. The platform is composed of several key microservices, each responsible for a specific domain:
 
 1. **Users**: Handles user authentication, authorization, and profile management
@@ -60,6 +62,7 @@ Hunzo adopts a microservices-based architecture to ensure modularity, scalabilit
 These microservices communicate and collaborate through well-defined APIs and event-driven interactions, enabling a decoupled and resilient system architecture.
 
 ## Important Notice
+
 ⚠️ **Disclaimer**: Hunzo is a fintech platform currently in development and is not an FDIC-insured bank. While we strive to provide reliable banking services through our platform, users should be aware that:
 
 - All services are provided on an as-is basis
@@ -70,5 +73,7 @@ These microservices communicate and collaborate through well-defined APIs and ev
 We are committed to continuously improving and expanding the capabilities of Hunzo to deliver a secure, reliable, and user-centric banking experience.
 
 Join us on this exciting journey as we redefine the future of digital asset banking!
+
+bash `cp .env.local .env `
 
 bash`docker compose --env-file .env.local up --build -d`
