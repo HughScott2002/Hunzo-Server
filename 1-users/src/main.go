@@ -21,7 +21,7 @@ import (
 //TODO: Include essential claims like 'exp' (expiration), 'iat' (issued at), and 'jti' (JWT ID).
 //TODO: Keep JWT payload minimal to reduce token size.
 
-//TODO: ADD PROGRESS TRACKER FOR 
+//TODO: ADD PROGRESS TRACKER FOR
 
 func main() {
 	// Initialize
@@ -44,8 +44,8 @@ func main() {
 		MaxAge:           300,
 	}))
 
-	//Routing
-	//Everything in the service needs to start with /api/users to be properly routed
+	// Routing
+	// Everything in the service needs to start with /api/users to be properly routed
 	r.Route("/api/users", func(r chi.Router) {
 		r.Mount("/auth", server.Router())
 		r.Post("/dump", handlers.HandlerDump)
