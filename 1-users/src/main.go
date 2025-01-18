@@ -53,7 +53,6 @@ func main() {
 		// r.Route("/account", func(r chi.Router) {
 		// 	r.Get("/update", HandlerPlaceHolder)
 		// })
-
 	})
 	fmt.Println("User server is running on Port 8080")
 	log.Fatal(http.ListenAndServe(":8080", r))
