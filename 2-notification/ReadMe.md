@@ -1,3 +1,5 @@
-Activity Logs
+Everytime something happens it gets logged here -Activity Logs
+
 Notifications
-Emails
+
+Send out Emails and SMS

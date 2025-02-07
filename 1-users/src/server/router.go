@@ -30,7 +30,7 @@ func Router() http.Handler {
 			r.Get("/{accountid}", handlers.HandlerGetUserProfile)
 			r.Put("/", handlers.HandlerUpdateUserProfile)
 			r.Delete("/", handlers.HandlerDeleteUserAccount)
-			r.Put("/change-password", handlers.HandlerChangePassword)
+			r.Post("/change-password", handlers.HandlerChangePassword)
 		})
 
 		// Security settings
