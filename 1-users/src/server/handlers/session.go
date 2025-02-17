@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"example.com/m/v2/src/db"
+	"example.com/m/v2/src/db/services"
 	"example.com/m/v2/src/models"
 	"example.com/m/v2/src/utils"
 )
@@ -43,22 +44,43 @@ func HandlerListActiveSessions(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Format the sessions for the response
-	var activeSessions []map[string]string
+	var activeSessions []map[string]interface{}
 	for _, session := range sessions {
-		activeSessions = append(activeSessions, map[string]string{
-			"id":          session.ID,
-			"deviceInfo":  session.DeviceInfo,
-			"createdAt":   session.CreatedAt.String(),
-			"lastLoginAt": session.LastLoginAt.String(),
+		// Get IP from X-Forwarded-For header or remote address when session was created
+		ipAddress := session.IPAddress
+		if ipAddress == "" {
+			ipAddress = "127.0.0.1" // Default if not available
+		}
+		// Parse browser info from DeviceInfo (User-Agent)
+		browser := services.ParseBrowser(session.DeviceInfo)
+
+		// Format the time
+		lastLoginTime := services.FormatSessionTime(session.LastLoginAt)
+
+		activeSessions = append(activeSessions, map[string]interface{}{
+			"id":              session.ID,
+			"browser":         browser,
+			"country":         session.Country, // This should be set when creating the session
+			"lastLoginAt":     lastLoginTime,
+			"ipAddress":       ipAddress,
+			"deviceInfo":      session.DeviceInfo,
+			"isCurrentDevice": false, // Will be set to true for current session
 		})
 	}
-
+	currentSessionID := r.Context().Value("sessionID").(string)
+	for i, session := range activeSessions {
+		if session["id"] == currentSessionID {
+			activeSessions[i]["isCurrentDevice"] = true
+			activeSessions[i]["lastLoginAt"] = "Current Session"
+		}
+	}
 	// Send the response
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"activeSessions": activeSessions,
 	})
 }
+
 func HandlerCheckSession(w http.ResponseWriter, r *http.Request) {
 	var user *models.User
 	var err error
