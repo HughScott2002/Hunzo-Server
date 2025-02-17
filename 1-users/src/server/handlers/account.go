@@ -6,8 +6,10 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"time"
 
 	"example.com/m/v2/src/db"
+	"example.com/m/v2/src/events/producer"
 	"example.com/m/v2/src/models"
 	"github.com/go-chi/chi/v5"
 	"golang.org/x/crypto/bcrypt"
@@ -117,17 +119,59 @@ func HandlerUpdateUserProfile(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandlerDeleteUserAccount(w http.ResponseWriter, r *http.Request) {
-	// TODO: Implement logic to delete user account
-	json.NewEncoder(w).Encode(map[string]string{"message": "Delete user account"})
-}
+	accountId := chi.URLParam(r, "accountid")
+	if accountId == "" {
+		http.Error(w, "Account ID is required", http.StatusBadRequest)
+		return
+	}
 
-// Define a struct to unmarshal the password change request
-type PasswordChangeRequest struct {
-	AccountId          string `json:"account-id"`
-	Email              string `json:"email"`
-	CurrentPassword    string `json:"current-password"`
-	NewPassword        string `json:"new-password"`
-	ConfirmNewPassword string `json:"confirm-new-password"`
+	user, err := db.GetUserByAccountId(accountId)
+	if err != nil {
+		http.Error(w, "User not found", http.StatusNotFound)
+		return
+	}
+
+	if user.Status != models.AccountStatusActive {
+		http.Error(w, "Account is already disabled or pending deletion", http.StatusBadRequest)
+		return
+	}
+
+	// Set account status and deletion time
+	now := time.Now()
+	scheduledDeletion := now.AddDate(0, 0, 30) // 30 days from now
+	user.Status = models.AccountStatusPendingDeletion
+	user.DeletionRequestedAt = &now
+
+	// Update user in database
+	if err := db.UpdateUser(user); err != nil {
+		http.Error(w, "Failed to update user status", http.StatusInternalServerError)
+		return
+	}
+
+	// Publish Kafka event
+	event := producer.AccountDeletionRequestedEvent{
+		AccountId:         user.AccountId,
+		Email:             user.Email,
+		RequestedAt:       now,
+		ScheduledDeletion: scheduledDeletion,
+	}
+
+	if err := producer.ProduceAccountDeletionRequestedEvent(event); err != nil {
+		log.Printf("Failed to produce account deletion event: %v", err)
+		// Continue execution - event failure shouldn't block account disable
+	}
+
+	// Invalidate all sessions
+	if err := db.DeleteUserSessions(user.Email); err != nil {
+		log.Printf("Failed to delete user sessions: %v", err)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"message":           "Account scheduled for deletion",
+		"scheduledDeletion": scheduledDeletion,
+	})
 }
 
 func HandlerChangePassword(w http.ResponseWriter, r *http.Request) {
@@ -145,7 +189,7 @@ func HandlerChangePassword(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	// Parse the JSON body
-	var passwordChangeReq PasswordChangeRequest
+	var passwordChangeReq models.PasswordChangeRequest
 	if err := json.Unmarshal(body, &passwordChangeReq); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return

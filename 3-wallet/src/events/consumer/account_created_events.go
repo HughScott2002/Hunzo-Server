@@ -17,7 +17,6 @@ import (
 
 //TODO: Add a Dead Message Queue
 
-
 // func createReaderWithRetries(ctx context.Context) (*kafka.Reader, error) {
 
 // 	maxRetries := 5
@@ -62,22 +61,22 @@ func ConsumeAccountCreatedEvents(ctx context.Context) error {
 
 	// Configure the reader with more reasonable timeouts
 	reader := kafka.NewReader(kafka.ReaderConfig{
-		Brokers:               []string{"broker:9092"},
-		GroupID:               events.ConsumerGroup,
-		Topic:                 events.Topic,
-		MinBytes:              10e3,
-		MaxBytes:              10e6,
-		MaxWait:               3 * time.Second,
-		ReadBackoffMax:        5 * time.Second,
-		HeartbeatInterval:     10 * time.Second,
-		SessionTimeout:        30 * time.Second,
-		StartOffset:           kafka.FirstOffset,
+		Brokers:           []string{"broker:9092"},
+		GroupID:           events.ConsumerGroup,
+		Topic:             events.AccountCreatedTopic,
+		MinBytes:          10e3,
+		MaxBytes:          10e6,
+		MaxWait:           3 * time.Second,
+		ReadBackoffMax:    5 * time.Second,
+		HeartbeatInterval: 10 * time.Second,
+		SessionTimeout:    30 * time.Second,
+		StartOffset:       kafka.FirstOffset,
 		// Logger:                kafka.LoggerFunc(log.Printf),
 		WatchPartitionChanges: true,
 	})
 	defer reader.Close()
 
-	log.Printf("Started consuming topic: %s with group: %s", events.Topic, events.ConsumerGroup)
+	log.Printf("Started consuming topic: %s with group: %s", events.AccountCreatedTopic, events.ConsumerGroup)
 
 	for {
 		select {

@@ -17,6 +17,7 @@ var db Database
 type Database interface {
 	AddWallet(wallet *models.Wallet) error
 	GetWallet(id string) (*models.Wallet, error)
+	GetWalletsByAccountId(accountId string) ([]*models.Wallet, error)
 	UpdateWallet(wallet *models.Wallet) error
 	WalletExists(id string) (bool, error)
 	DeleteWallet(id string) error
@@ -70,7 +71,9 @@ func AddWallet(wallet *models.Wallet) error {
 func GetWallet(id string) (*models.Wallet, error) {
 	return db.GetWallet(id)
 }
-
+func GetWalletsByAccountId(accountId string) ([]*models.Wallet, error) {
+	return db.GetWalletsByAccountId(accountId)
+}
 func UpdateWallet(wallet *models.Wallet) error {
 	return db.UpdateWallet(wallet)
 }

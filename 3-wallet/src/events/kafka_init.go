@@ -10,8 +10,9 @@ import (
 )
 
 const (
-	Topic         = "account-created"
-	ConsumerGroup = "wallet-service"
+	AccountCreatedTopic           = "account-created"
+	AccountDeletionRequestedTopic = "account-deletion-requested"
+	ConsumerGroup                 = "wallet-service"
 )
 
 func KafkaInit(ctx context.Context) bool {
@@ -45,7 +46,12 @@ func ensureTopic(ctx context.Context) error {
 	// Create topic with 3 partitions
 	topicConfigs := []kafka.TopicConfig{
 		{
-			Topic:             Topic,
+			Topic:             AccountCreatedTopic,
+			NumPartitions:     3,
+			ReplicationFactor: 1,
+		},
+		{
+			Topic:             AccountDeletionRequestedTopic,
 			NumPartitions:     3,
 			ReplicationFactor: 1,
 		},

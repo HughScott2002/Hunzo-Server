@@ -82,6 +82,30 @@ func (r *Redis) GetWallet(id string) (*models.Wallet, error) {
 	return &wallet, nil
 }
 
+func (r *Redis) GetWalletsByAccountId(accountId string) ([]*models.Wallet, error) {
+	pattern := fmt.Sprintf("wallet:account:%s:*", accountId)
+	ctx := context.Background()
+
+	var wallets []*models.Wallet
+	iter := r.client.Scan(ctx, 0, pattern, 0).Iterator()
+
+	for iter.Next(ctx) {
+		walletJSON, err := r.client.Get(ctx, iter.Val()).Bytes()
+		if err != nil {
+			continue
+		}
+
+		var wallet models.Wallet
+		if err := json.Unmarshal(walletJSON, &wallet); err != nil {
+			continue
+		}
+
+		wallets = append(wallets, &wallet)
+	}
+
+	return wallets, nil
+}
+
 func (r *Redis) UpdateWallet(wallet *models.Wallet) error {
 	ctx := context.Background()
 

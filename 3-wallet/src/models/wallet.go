@@ -11,6 +11,7 @@ const (
 	WalletStatusActive    WalletStatus = "active"
 	WalletStatusInactive  WalletStatus = "inactive"
 	WalletStatusSuspended WalletStatus = "suspended"
+	WalletStatusDisabled  WalletStatus = "disabled"
 )
 
 // WalletType represents the type of wallet

@@ -44,6 +44,19 @@ func (m *MemoryImplementation) GetWallet(id string) (*models.Wallet, error) {
 
 	return wallet, nil
 }
+func (m *MemoryImplementation) GetWalletsByAccountId(accountId string) ([]*models.Wallet, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	var wallets []*models.Wallet
+	for _, wallet := range m.wallets {
+		if wallet.AccountId == accountId {
+			walletCopy := *wallet
+			wallets = append(wallets, &walletCopy)
+		}
+	}
+	return wallets, nil
+}
 
 func (m *MemoryImplementation) UpdateWallet(wallet *models.Wallet) error {
 	m.mu.Lock()

@@ -36,6 +36,7 @@ func Router() http.Handler {
 		// Security settings
 		r.Route("/security", func(r chi.Router) {
 
+			//Session management
 			r.Route("/sessions", func(r chi.Router) {
 				// All sessions currently logged in
 				r.Post("/", handlers.HandlerListActiveSessions)
@@ -48,24 +49,18 @@ func Router() http.Handler {
 			// Two-factor authentication on these devices has been remembered for 30 days.
 
 			//TODO: ADD A Activity history logger
-			// The last 30 days of activity on your account:
-			// Event	       Source	        IP address	 Date and time	    Country
-			// Log in failure  Chrome (Linux)	127.0.0.2	 Jan 2, 12:22 PM	United States
+			r.Route("/2fa", func(r chi.Router) {
+				// The last 30 days of activity on your account:
+				// Event	       Source	        IP address	 Date and time	    Country
+				// Log in failure  Chrome (Linux)	127.0.0.2	 Jan 2, 12:22 PM	United States
 
-			r.Get("/sessions/{sessionId}", handlers.HandlerListActiveSessions)
-			// Two-factor authentication (2FA) helps accounts secure by adding an extra layer of protection beyond a password.
-			// By default, we require you to set up a 2FA app that can generate 2FA codes,
-			// but you can add a security key to log in even quicker.
-			r.Post("/enable-2fa", handlers.HandlerEnable2FA)
-			r.Post("/disable-2fa", handlers.HandlerDisable2FA)
+				// Two-factor authentication (2FA) helps accounts secure by adding an extra layer of protection beyond a password.
+				// By default, we require you to set up a 2FA app that can generate 2FA codes,
+				// but you can add a security key to log in even quicker.
+				r.Post("/enable", handlers.HandlerEnable2FA)
+				r.Post("/disable", handlers.HandlerDisable2FA)
+			})
 
-		})
-
-		// Device and session management
-		r.Route("/devices", func(r chi.Router) {
-			r.Get("/", handlers.HandlerListDevices)
-			r.Delete("/{deviceId}", handlers.HandlerRemoveDevice)
-			r.Delete("/", handlers.HandlerRemoveAllDevices)
 		})
 	})
 
