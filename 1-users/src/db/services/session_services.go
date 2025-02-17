@@ -1,6 +1,7 @@
 package services
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -20,6 +21,8 @@ func ParseBrowser(userAgent string) string {
 		return "Safari"
 	} else if strings.Contains(userAgent, "Edge") {
 		return "Edge"
+	} else if strings.Contains(userAgent, "Postman") {
+		return "Postman"
 	} else {
 		return "Unknown Browser"
 	}
@@ -62,6 +65,45 @@ func CreateSession(r *http.Request, email string) (*models.Session, error) {
 	err := db.AddSession(session)
 	if err != nil {
 		return nil, err
+	}
+
+	return session, nil
+}
+func CreateUserSession(r *http.Request, user *models.User, refreshToken string) (*models.Session, error) {
+	// Get the IP address
+	ipAddress := r.Header.Get("X-Forwarded-For")
+	if ipAddress == "" {
+		ipAddress = r.RemoteAddr
+	}
+
+	// Get the User-Agent
+	userAgent := r.Header.Get("User-Agent")
+
+	// Create a new session
+	session := &models.Session{
+		ID:          uuid.New().String(),
+		UserEmail:   user.Email,
+		DeviceInfo:  userAgent,
+		IPAddress:   ipAddress,
+		Browser:     ParseBrowser(userAgent),
+		Country:     "United States", //TODO Use a geo-IP service here
+		Token:       refreshToken,
+		LastLoginAt: time.Now(),
+		CreatedAt:   time.Now(),
+	}
+
+	// Save the session
+	if err := db.AddSession(session); err != nil {
+		return nil, fmt.Errorf("failed to add session: %w", err)
+	}
+
+	// Add refresh token info
+	if err := db.AddRefreshToken(refreshToken, db.RefreshTokenInfo{
+		UserEmail:  user.Email,
+		DeviceInfo: userAgent,
+		CreatedAt:  time.Now(),
+	}); err != nil {
+		return nil, fmt.Errorf("failed to add refresh token: %w", err)
 	}
 
 	return session, nil

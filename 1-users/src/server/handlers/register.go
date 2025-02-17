@@ -6,9 +6,9 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"time"
 
 	"example.com/m/v2/src/db"
+	"example.com/m/v2/src/db/services"
 	"example.com/m/v2/src/events/producer"
 	"example.com/m/v2/src/models"
 	"example.com/m/v2/src/models/events"
@@ -80,6 +80,7 @@ func HandlerRegister(w http.ResponseWriter, r *http.Request) {
 		log.Printf("failed to produce user created event: %v", err)
 	}
 	log.Printf("KAKFA EVENT account-created sent acc#: %s", userCreatedEvent.AccountId)
+
 	// Generate access token
 	accessToken, err := utils.GenerateAccessToken(user.Email)
 	if err != nil {
@@ -93,10 +94,11 @@ func HandlerRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db.RefreshTokens[refreshToken] = db.RefreshTokenInfo{
-		UserEmail:  user.Email,
-		DeviceInfo: deviceInfo,
-		CreatedAt:  time.Now(),
+	// Create session
+	session, err := services.CreateUserSession(r, &user, refreshToken)
+	if err != nil {
+		http.Error(w, "Error creating session", http.StatusInternalServerError)
+		return
 	}
 
 	// Set cookies
@@ -142,6 +144,12 @@ func HandlerRegister(w http.ResponseWriter, r *http.Request) {
 			"firstName": user.FirstName,
 			"lastName":  user.LastName,
 			"kycStatus": user.KYCStatus.String(),
+		},
+		"session": map[string]interface{}{
+			"id":         session.ID,
+			"browser":    session.Browser,
+			"ipAddress":  session.IPAddress,
+			"deviceInfo": session.DeviceInfo,
 		},
 	}
 

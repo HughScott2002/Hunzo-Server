@@ -67,11 +67,17 @@ func HandlerListActiveSessions(w http.ResponseWriter, r *http.Request) {
 			"isCurrentDevice": false, // Will be set to true for current session
 		})
 	}
-	currentSessionID := r.Context().Value("sessionID").(string)
-	for i, session := range activeSessions {
-		if session["id"] == currentSessionID {
-			activeSessions[i]["isCurrentDevice"] = true
-			activeSessions[i]["lastLoginAt"] = "Current Session"
+	var currentSessionID string
+	if sid := r.Context().Value("sessionID"); sid != nil {
+		currentSessionID = sid.(string)
+	}
+	// Only try to mark current session if we have a session ID
+	if currentSessionID != "" {
+		for i, session := range activeSessions {
+			if session["id"] == currentSessionID {
+				activeSessions[i]["isCurrentDevice"] = true
+				activeSessions[i]["lastLoginAt"] = "Current Session"
+			}
 		}
 	}
 	// Send the response
