@@ -28,8 +28,8 @@ func Router() http.Handler {
 			r.Post("/register", handlers.HandlerRegister)
 			r.Post("/logout", handlers.HandlerLogout)
 			r.Get("/{accountid}", handlers.HandlerGetUserProfile)
-			r.Put("/", handlers.HandlerUpdateUserProfile)
-			r.Delete("/", handlers.HandlerDeleteUserAccount)
+			r.Put("/{accountid}", handlers.HandlerUpdateUserProfile)
+			r.Delete("/{accountid}", handlers.HandlerDeleteUserAccount)
 			r.Post("/change-password", handlers.HandlerChangePassword)
 		})
 
