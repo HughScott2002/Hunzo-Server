@@ -10,6 +10,7 @@ import (
 	"example.com/m/v2/src/db/services"
 	"example.com/m/v2/src/models"
 	"example.com/m/v2/src/utils"
+	"github.com/go-chi/chi/v5"
 )
 
 func HandlerListActiveSessions(w http.ResponseWriter, r *http.Request) {
@@ -206,4 +207,75 @@ func HandlerCheckSession(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(userData)
 	log.Println("Session check completed successfully")
+}
+func HandlerLogoutAllOtherSessions(w http.ResponseWriter, r *http.Request) {
+	// Get current refresh token
+	refreshTokenCookie, err := r.Cookie("refresh_token")
+	if err != nil {
+		http.Error(w, "No active session found", http.StatusUnauthorized)
+		return
+	}
+
+	// Get token info to get user email
+	tokenInfo, err := db.GetRefreshToken(refreshTokenCookie.Value)
+	if err != nil {
+		http.Error(w, "Invalid refresh token", http.StatusUnauthorized)
+		return
+	}
+
+	// Get all user sessions
+	sessions, err := db.GetUserSessions(tokenInfo.UserEmail)
+	if err != nil {
+		http.Error(w, "Failed to retrieve user sessions", http.StatusInternalServerError)
+		return
+	}
+
+	// Delete all sessions except current one
+	for _, session := range sessions {
+		if session.Token != refreshTokenCookie.Value {
+			if err := db.DeleteSession(session.ID); err != nil {
+				log.Printf("Failed to delete session %s: %v", session.ID, err)
+				continue
+			}
+			if err := db.DeleteRefreshToken(session.Token); err != nil {
+				log.Printf("Failed to delete refresh token for session %s: %v", session.ID, err)
+			}
+		}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "Successfully logged out all other devices",
+	})
+}
+
+func HandlerLogoutSessionById(w http.ResponseWriter, r *http.Request) {
+	sessionID := chi.URLParam(r, "sessionid")
+	if sessionID == "" {
+		http.Error(w, "Session ID is required", http.StatusBadRequest)
+		return
+	}
+
+	session, err := db.GetSession(sessionID)
+	if err != nil {
+		http.Error(w, "Session not found", http.StatusNotFound)
+		return
+	}
+
+	// Delete session and its refresh token
+	if err := db.DeleteSession(sessionID); err != nil {
+		http.Error(w, "Failed to delete session", http.StatusInternalServerError)
+		return
+	}
+
+	if err := db.DeleteRefreshToken(session.Token); err != nil {
+		log.Printf("Failed to delete refresh token for session %s: %v", sessionID, err)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "Session successfully logged out",
+	})
 }
