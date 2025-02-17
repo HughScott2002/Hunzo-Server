@@ -4,11 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
-	"time"
 
 	"example.com/m/v2/src/db"
-	"example.com/m/v2/src/models"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -41,10 +40,21 @@ func HandlerDeleteUserAccount(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"message": "Delete user account"})
 }
 
+// Define a struct to unmarshal the password change request
+type PasswordChangeRequest struct {
+	AccountId          string `json:"account-id"`
+	Email              string `json:"email"`
+	CurrentPassword    string `json:"current-password"`
+	NewPassword        string `json:"new-password"`
+	ConfirmNewPassword string `json:"confirm-new-password"`
+}
+
 func HandlerChangePassword(w http.ResponseWriter, r *http.Request) {
 	// Get device information
 	deviceInfo := r.Header.Get("User-Agent")
-
+	
+	fmt.Printf("%s", deviceInfo)
+	
 	// Read request body
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -53,15 +63,6 @@ func HandlerChangePassword(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	// Define a struct to unmarshal the password change request
-	type PasswordChangeRequest struct {
-		AccountId          string `json:"account-id"`
-		Email              string `json:"email"`
-		CurrentPassword    string `json:"current-password"`
-		NewPassword        string `json:"new-password"`
-		ConfirmNewPassword string `json:"confirm-new-password"`
-	}
-
 	// Parse the JSON body
 	var passwordChangeReq PasswordChangeRequest
 	if err := json.Unmarshal(body, &passwordChangeReq); err != nil {
@@ -69,38 +70,36 @@ func HandlerChangePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Validate input
+	// Validate passwords match
 	if passwordChangeReq.NewPassword != passwordChangeReq.ConfirmNewPassword {
 		http.Error(w, "New passwords do not match", http.StatusBadRequest)
 		return
 	}
 
-	var loginRequest models.User
-	// Get the user email from the access token
-	// Assuming you have a function to extract email from the token
-	storedUser, err := db.GetUser(loginRequest.Email)
-	if err != nil {
-		http.Error(w, "User doesn't exist", http.StatusNotFound)
-		return
-	}
-	
-	email, err := utils.GetEmailFromAccessToken(r)
-	if err != nil {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
-
-	// Retrieve user from database
-	user, err := db.GetUserByEmail(email)
+	// Get the user from database
+	storedUser, err := db.GetUser(passwordChangeReq.Email)
 	if err != nil {
 		http.Error(w, "User not found", http.StatusNotFound)
 		return
 	}
 
+	// Verify account ID matches
+	if storedUser.AccountId != passwordChangeReq.AccountId {
+		http.Error(w, "Invalid account ID", http.StatusUnauthorized)
+		return
+	}
+
 	// Verify current password
-	err = bcrypt.CompareHashAndPassword([]byte(user.HashedPassword), []byte(passwordChangeReq.CurrentPassword))
+	err = bcrypt.CompareHashAndPassword([]byte(storedUser.HashedPassword), []byte(passwordChangeReq.CurrentPassword))
 	if err != nil {
 		http.Error(w, "Current password is incorrect", http.StatusUnauthorized)
+		return
+	}
+
+	// Check if new password is same as current password
+	err = bcrypt.CompareHashAndPassword([]byte(storedUser.HashedPassword), []byte(passwordChangeReq.NewPassword))
+	if err == nil {
+		http.Error(w, "New password cannot be the same as current password", http.StatusBadRequest)
 		return
 	}
 
@@ -111,28 +110,39 @@ func HandlerChangePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Update user's password in the database
-	err = db.UpdateUserPassword(email, string(hashedNewPassword))
+	// Update user's password
+	storedUser.HashedPassword = string(hashedNewPassword)
+	err = db.UpdateUser(storedUser)
 	if err != nil {
 		http.Error(w, "Failed to update password", http.StatusInternalServerError)
 		return
 	}
 
-	// Optional: Produce an event for password change
-	passwordChangedEvent := events.PasswordChangedEvent{
-		AccountId:  user.AccountId,
-		DeviceInfo: deviceInfo,
-		ChangedAt:  time.Now(),
-	}
-	err = producer.ProducePasswordChangedEvent(passwordChangedEvent)
+	// Invalidate all refresh tokens for this user
+	err = db.DeleteUserSessions(passwordChangeReq.Email)
 	if err != nil {
-		fmt.Printf("failed to produce password changed event: %v", err)
+		log.Printf("Error deleting user sessions: %v", err)
 	}
 
-	// Respond with success
+	// TODO: Produce password changed event
+	// passwordChangedEvent := events.PasswordChangedEvent{
+	// 	AccountId:  storedUser.AccountId,
+	// 	DeviceInfo: deviceInfo,
+	// 	ChangedAt:  time.Now(),
+	// }
+	// err = producer.ProducePasswordChangedEvent(passwordChangedEvent)
+	// if err != nil {
+	// 	log.Printf("Failed to produce password changed event: %v", err)
+	// }
+
+	// Return success response
+	response := map[string]string{
+		"message":   "Password changed successfully",
+		"email":     passwordChangeReq.Email,
+		"accountId": passwordChangeReq.AccountId,
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{
-		"message": "Password changed successfully",
-	})
+	json.NewEncoder(w).Encode(response)
 }
