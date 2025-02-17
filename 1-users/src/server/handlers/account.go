@@ -8,17 +8,53 @@ import (
 	"net/http"
 
 	"example.com/m/v2/src/db"
+	"example.com/m/v2/src/models"
+	"github.com/go-chi/chi/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
 func HandlerGetUserProfile(w http.ResponseWriter, r *http.Request) {
-	// TODO: Implement logic to get user profile
-	json.NewEncoder(w).Encode(map[string]string{"message": "Get user profile"})
+	accountId := chi.URLParam(r, "accountid")
+	if accountId == "" {
+		http.Error(w, "Account ID is required", http.StatusBadRequest)
+		return
+	}
+
+	users, err := db.GetUserByAccountId(accountId) // You'll need to implement this
+	if err != nil {
+		http.Error(w, "User not found", http.StatusNotFound)
+		return
+	}
+
+	profile := map[string]interface{}{
+		"accountId":  users.AccountId,
+		"email":      users.Email,
+		"firstName":  users.FirstName,
+		"lastName":   users.LastName,
+		"phone":      users.Phone,
+		"address":    users.Address,
+		"city":       users.City,
+		"state":      users.State,
+		"country":    users.Country,
+		"currency":   users.Currency,
+		"postalCode": users.PostalCode,
+		"dob":        users.DOB,
+		"govId":      users.GovId,
+		"kycStatus":  users.KYCStatus.String(),
+		// "backupCodes": users.BackupCodes,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(profile)
 }
 
 func HandlerUpdateUserProfile(w http.ResponseWriter, r *http.Request) {
-	// TODO: Implement logic to update user profile
-	deviceInfo := r.Header.Get("User-Agent")
+	accountId := chi.URLParam(r, "accountid")
+	if accountId == "" {
+		http.Error(w, "Account ID is required", http.StatusBadRequest)
+		return
+	}
+
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "Failed to read request body", http.StatusBadRequest)
@@ -26,13 +62,58 @@ func HandlerUpdateUserProfile(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	fmt.Printf("%s\n", body)
+	var updateRequest models.User
+	if err := json.Unmarshal(body, &updateRequest); err != nil {
+		http.Error(w, "Invalid request format", http.StatusBadRequest)
+		return
+	}
 
-	json.NewEncoder(w).Encode(map[string]string{
-		"message": "Update user profile",
-		"device":  deviceInfo,
-		"body":    string(body),
-	})
+	currentUser, err := db.GetUserByAccountId(accountId)
+	if err != nil {
+		http.Error(w, "User not found", http.StatusNotFound)
+		return
+	}
+
+	// Update only allowed fields
+	currentUser.FirstName = updateRequest.FirstName
+	currentUser.LastName = updateRequest.LastName
+	currentUser.Phone = updateRequest.Phone
+	currentUser.Address = updateRequest.Address
+	currentUser.City = updateRequest.City
+	currentUser.State = updateRequest.State
+	currentUser.Country = updateRequest.Country
+	currentUser.PostalCode = updateRequest.PostalCode
+	currentUser.Currency = updateRequest.Currency
+	currentUser.DOB = updateRequest.DOB
+	currentUser.GovId = updateRequest.GovId
+
+	if err := db.UpdateUser(currentUser); err != nil {
+		http.Error(w, "Failed to update profile", http.StatusInternalServerError)
+		return
+	}
+
+	response := map[string]interface{}{
+		"message": "Profile updated successfully",
+		"user": map[string]interface{}{
+			"firstName":  currentUser.FirstName,
+			"lastName":   currentUser.LastName,
+			"phone":      currentUser.Phone,
+			"address":    currentUser.Address,
+			"city":       currentUser.City,
+			"state":      currentUser.State,
+			"country":    currentUser.Country,
+			"currency":   currentUser.Currency,
+			"postalCode": currentUser.PostalCode,
+			"dob":        currentUser.DOB,
+			"govId":      currentUser.GovId,
+			"email":      currentUser.Email,
+			"kycStatus":  currentUser.KYCStatus.String(),
+		},
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(response)
 }
 
 func HandlerDeleteUserAccount(w http.ResponseWriter, r *http.Request) {
@@ -52,9 +133,9 @@ type PasswordChangeRequest struct {
 func HandlerChangePassword(w http.ResponseWriter, r *http.Request) {
 	// Get device information
 	deviceInfo := r.Header.Get("User-Agent")
-	
+
 	fmt.Printf("%s", deviceInfo)
-	
+
 	// Read request body
 	body, err := io.ReadAll(r.Body)
 	if err != nil {

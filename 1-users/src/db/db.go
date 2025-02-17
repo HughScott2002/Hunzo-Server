@@ -21,6 +21,7 @@ var db Database
 type Database interface {
 	AddUser(user *models.User) error
 	GetUser(email string) (*models.User, error)
+	GetUserByAccountId(accountId string) (*models.User, error)
 	UpdateUser(user *models.User) error
 	DeleteUser(email string) error
 	UserExists(email string) (bool, error)
@@ -102,7 +103,10 @@ func AddUser(user *models.User) error {
 	return db.AddUser(user)
 }
 
-func GetUser(email string) (*models.User, error)              { return db.GetUser(email) }
+func GetUser(email string) (*models.User, error) { return db.GetUser(email) }
+func GetUserByAccountId(accountId string) (*models.User, error) {
+	return db.GetUserByAccountId(accountId)
+}
 func UpdateUser(user *models.User) error                      { return db.UpdateUser(user) }
 func DeleteUser(email string) error                           { return db.DeleteUser(email) }
 func UserExists(email string) (bool, error)                   { return db.UserExists(email) }
@@ -135,6 +139,16 @@ func (m *MemoryDB) GetUser(email string) (*models.User, error) {
 		return nil, fmt.Errorf("user not found")
 	}
 	return &user, nil
+}
+func (m *MemoryDB) GetUserByAccountId(accountId string) (*models.User, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	for _, user := range m.users {
+		if user.AccountId == accountId {
+			return &user, nil
+		}
+	}
+	return nil, fmt.Errorf("user not found")
 }
 
 func (m *MemoryDB) UpdateUser(user *models.User) error {
@@ -280,6 +294,25 @@ func (r *RedisDB) GetUser(email string) (*models.User, error) {
 		return nil, err
 	}
 	return &user, nil
+}
+func (r *RedisDB) GetUserByAccountId(accountId string) (*models.User, error) {
+	ctx := context.Background()
+	pattern := "user:*"
+	iter := r.client.Scan(ctx, 0, pattern, 0).Iterator()
+	for iter.Next(ctx) {
+		userJSON, err := r.client.Get(ctx, iter.Val()).Bytes()
+		if err != nil {
+			continue
+		}
+		var user models.User
+		if err := json.Unmarshal(userJSON, &user); err != nil {
+			continue
+		}
+		if user.AccountId == accountId {
+			return &user, nil
+		}
+	}
+	return nil, fmt.Errorf("user not found")
 }
 
 func (r *RedisDB) UpdateUser(user *models.User) error {
@@ -443,6 +476,9 @@ func (f *FutureDB) AddUser(user *models.User) error {
 
 func (f *FutureDB) GetUser(email string) (*models.User, error) {
 	return nil, fmt.Errorf("FutureDB: GetUser not implemented")
+}
+func (f *FutureDB) GetUserByAccountId(accountId string) (*models.User, error) {
+	return nil, fmt.Errorf("FutureDB: GetUserByAccountId not implemented")
 }
 
 func (f *FutureDB) UpdateUser(user *models.User) error {
