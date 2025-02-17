@@ -13,19 +13,13 @@ import (
 
 // Parse browser info from User-Agent
 func ParseBrowser(userAgent string) string {
-	if strings.Contains(userAgent, "Chrome") {
-		return "Chrome"
-	} else if strings.Contains(userAgent, "Firefox") {
-		return "Firefox"
-	} else if strings.Contains(userAgent, "Safari") {
-		return "Safari"
-	} else if strings.Contains(userAgent, "Edge") {
-		return "Edge"
-	} else if strings.Contains(userAgent, "Postman") {
-		return "Postman"
-	} else {
-		return "Unknown Browser"
+	userAgent = strings.ToLower(userAgent)
+	for _, browser := range models.BrowserPatterns {
+		if strings.Contains(userAgent, strings.ToLower(browser.Pattern)) {
+			return browser.Name
+		}
 	}
+	return "Unknown Browser"
 }
 
 // Format time for session display
