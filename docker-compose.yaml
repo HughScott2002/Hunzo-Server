@@ -161,6 +161,14 @@ services:
       retries: 10
     restart: always
 
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - "1025:1025" # SMTP server
+      - "8025:8025" # Web UI
+    networks:
+      - app-network
+  
 volumes:
   user_redis_data:
   wallet_redis_data:
