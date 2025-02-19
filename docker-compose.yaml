@@ -75,6 +75,21 @@ services:
       - USER_REDIS_PORT=${USER_REDIS_PORT}
       - ENVIRONMENT=${ENVIRONMENT}
       - MODE=${MODE}
+  notification-service:
+    container_name: notification-service
+    build: ./2-notification
+    ports:
+      - "${NOTIFICATION_SERVICE_PORT}:${NOTIFICATION_SERVICE_INTERNAL_PORT}"
+    environment:
+      - TESTING_NOTIFICATION_SERVICE_SMTP_HOST=${TESTING_NOTIFICATION_SERVICE_SMTP_HOST}
+      - TESTING_NOTIFICATION_SERVICE_SMTP_PORT=${TESTING_NOTIFICATION_SERVICE_SMTP_PORT}
+      - NOTIFICATION_SERVICE_KAFKA_BOOTSTRAP_SERVERS=broker:9092
+      - NOTIFICATION_SERVICE_KAFKA_TOPIC=notifications
+    depends_on:
+      - mailhog
+      - broker
+    networks:
+      - app-network
 
   wallet-service:
     container_name: wallet-service
@@ -168,7 +183,11 @@ services:
       - "8025:8025" # Web UI
     networks:
       - app-network
-  
+
+networks:
+  app-network:
+    driver: bridge
+
 volumes:
   user_redis_data:
   wallet_redis_data:
