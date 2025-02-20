@@ -74,6 +74,10 @@ We are committed to continuously improving and expanding the capabilities of Hun
 
 Join us on this exciting journey as we redefine the future of digital asset banking!
 
-bash `cp .env.local .env `
+bash `cp .env.example .env `
 
-bash`docker compose --env-file .env.local up --build -d`
+bash `docker compose up --build`
+
+OR
+
+bash`docker compose --env-file .env.example  up --build -d`
