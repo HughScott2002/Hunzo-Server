@@ -77,14 +77,19 @@ services:
       - MODE=${MODE}
   notification-service:
     container_name: notification-service
-    build: ./2-notification
+    image: fastapi_app:latest
+    build:
+      context: ./2-notification
+      target: development # or 'production' for prod
     ports:
       - "${NOTIFICATION_SERVICE_PORT}:${NOTIFICATION_SERVICE_INTERNAL_PORT}"
     environment:
       - TESTING_NOTIFICATION_SERVICE_SMTP_HOST=${TESTING_NOTIFICATION_SERVICE_SMTP_HOST}
       - TESTING_NOTIFICATION_SERVICE_SMTP_PORT=${TESTING_NOTIFICATION_SERVICE_SMTP_PORT}
       - NOTIFICATION_SERVICE_KAFKA_BOOTSTRAP_SERVERS=broker:9092
-      - NOTIFICATION_SERVICE_KAFKA_TOPIC=notifications
+      - NOTIFICATION_SERVICE_KAFKA_TOPIC=${NOTIFICATION_SERVICE_KAFKA_TOPIC}
+      - ENV=development
+      - PORT=${NOTIFICATION_SERVICE_INTERNAL_PORT}
     depends_on:
       - mailhog
       - broker
