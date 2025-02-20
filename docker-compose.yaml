@@ -1,16 +1,15 @@
 services:
-  localstack:
-    container_name: "${LOCALSTACK_DOCKER_NAME:-localstack-main}"
-    image: localstack/localstack:4.0
-    ports:
-      - "127.0.0.1:4566:4566" # LocalStack Gateway
-      - "127.0.0.1:4510-4559:4510-4559" # external services port range
-    environment:
-      # LocalStack configuration: https://docs.localstack.cloud/references/configuration/
-      - DEBUG=${DEBUG:-0}
-    volumes:
-      - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
-      - "/var/run/docker.sock:/var/run/docker.sock"
+  # localstack:
+  #   container_name: "${LOCALSTACK_DOCKER_NAME:-localstack-main}"
+  #   image: localstack/localstack:4.0
+  #   ports:
+  #     - "127.0.0.1:4566:4566" # LocalStack Gateway
+  #     - "127.0.0.1:4510-4559:4510-4559" # external services port range
+  #   environment:
+  #     - DEBUG=${DEBUG:-0}
+  #   volumes:
+  #     - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
+  #     - "/var/run/docker.sock:/var/run/docker.sock"
 
   broker:
     image: apache/kafka:3.7.0
@@ -54,6 +53,7 @@ services:
     depends_on:
       - user-service
       - wallet-service
+      - notification-service
 
   user-service:
     container_name: user-service
@@ -184,8 +184,8 @@ services:
   mailhog:
     image: mailhog/mailhog
     ports:
-      - "1025:1025" # SMTP server
-      - "8025:8025" # Web UI
+      - "${TESTING_NOTIFICATION_SERVICE_SMTP_PORT}:${TESTING_NOTIFICATION_SERVICE_INTERNAL_SMTP_PORT}" # SMTP server
+      - "${TESTING_NOTIFICATION_SERVICE_WEB_UI}:8025" # Web UI
     networks:
       - app-network
 

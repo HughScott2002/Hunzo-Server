@@ -1,5 +1,5 @@
 # app/api/routes.py
-from fastapi import APIRouter
+from fastapi import APIRouter # type: ignore
 from .models import Item
 
 router = APIRouter()
@@ -7,6 +7,12 @@ router = APIRouter()
 
 @router.get("/health")
 async def health():
+    return {
+        "OKAY": "OKAY"
+    }
+    
+@router.get("/api/notifications")
+async def notifications():
     return {
         "OKAY": "OKAY"
     }
