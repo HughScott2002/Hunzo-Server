@@ -93,8 +93,8 @@ services:
     depends_on:
       - mailhog
       - broker
-    networks:
-      - app-network
+    # networks:
+    #   - app-network
 
   wallet-service:
     container_name: wallet-service
@@ -186,12 +186,12 @@ services:
     ports:
       - "${TESTING_NOTIFICATION_SERVICE_SMTP_PORT}:${TESTING_NOTIFICATION_SERVICE_INTERNAL_SMTP_PORT}" # SMTP server
       - "${TESTING_NOTIFICATION_SERVICE_WEB_UI}:8025" # Web UI
-    networks:
-      - app-network
+    # networks:
+    #   - app-network
 
-networks:
-  app-network:
-    driver: bridge
+# networks:
+#   app-network:
+#     driver: bridge
 
 volumes:
   user_redis_data:
