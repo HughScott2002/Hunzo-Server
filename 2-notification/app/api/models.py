@@ -22,3 +22,11 @@ class Notification(BaseModel):
     priority: Optional[str] = "normal"
     category: Optional[str] = None
     action_url: Optional[str] = None
+
+class NotificationResponse(BaseModel):
+    notifications: List[Notification]
+    total: int
+    page: int
+    page_size: int
+    unread_count: int
+
