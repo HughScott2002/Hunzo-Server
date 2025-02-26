@@ -76,8 +76,8 @@ Join us on this exciting journey as we redefine the future of digital asset bank
 
 bash `cp .env.example .env `
 
-bash `docker compose up --build`
+bash `docker compose up --build ` add `-d` to detach from the output of the containers
 
 OR
 
-bash`docker compose --env-file .env.example  up --build -d`
+bash`docker compose --env-file .env.example  up --build ` add `-d` to detach from the output of the containers
