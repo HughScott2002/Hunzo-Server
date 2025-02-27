@@ -80,6 +80,8 @@ func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 			"browser":    session.Browser,
 			"ipAddress":  session.IPAddress,
 			"deviceInfo": session.DeviceInfo,
+			// "refreshToken": refreshToken,
+			// "accessToken":  accessToken,
 		},
 	}
 
