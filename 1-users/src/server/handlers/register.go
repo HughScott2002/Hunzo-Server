@@ -16,6 +16,9 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+//TODO: Need a way to add Tags
+//TODO: Need to know what kind of account it is? Personal? Business? Ect.
+
 func HandlerRegister(w http.ResponseWriter, r *http.Request) {
 	//Change
 	deviceInfo := r.Header.Get("User-Agent")

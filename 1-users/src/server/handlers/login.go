@@ -74,6 +74,7 @@ func HandlerLogin(w http.ResponseWriter, r *http.Request) {
 			"firstName": storedUser.FirstName,
 			"lastName":  storedUser.LastName,
 			"kycStatus": storedUser.KYCStatus.String(),
+			// "account":   storedUser.Status.String(),
 		},
 		"session": map[string]interface{}{
 			"id":         session.ID,
