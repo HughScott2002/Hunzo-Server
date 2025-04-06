@@ -27,6 +27,8 @@ func HandlerGetUserProfile(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "User not found", http.StatusNotFound)
 		return
 	}
+	//Type of account
+	//TODO: Hunzo Tag, Autogenerate it for now
 
 	profile := map[string]interface{}{
 		"accountId":  users.AccountId,

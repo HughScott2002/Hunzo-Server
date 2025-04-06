@@ -29,6 +29,8 @@ func Router() http.Handler {
 		r.Get("/list/{accountId}", handlers.ListWallets) //List all the wallets
 		r.Get("/recover", func(http.ResponseWriter, *http.Request) { panic("foo") })
 	})
+	//TODO: When there is a new Wallet Create a new card event
+	
 
 	return r
 }
