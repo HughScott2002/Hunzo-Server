@@ -27,15 +27,34 @@
   </div>
 </div>
 
-## Overview
+• [Overview](#overview)
+• [About the Platform](#about-the-platform)
+• [Technology Stack](#technology-stack)
+• [Microservices Architecture](#microservices-architecture)
+• [Important Notice](#important-notice)
+• [Installation](#installation)
+
+<!-- Screenshots section - Add your screenshots here -->
+<!--
+![image](screenshot1_url)
+![image](screenshot2_url)
+![image](screenshot3_url)
+-->
+
+<!-- Video demo section - Add your video here -->
+<!--
+https://github.com/user-attachments/assets/your-video-file
+-->
+
+## Overview 🚀
 
 Hunzo is a modern fintech platform providing advanced banking solutions. Our platform combines the innovation of digital assets with traditional banking experiences to deliver seamless financial services.
 
-## About the Platform
+## About the Platform ✨
 
 Hunzo offers a comprehensive suite of banking features through an intuitive, user-friendly interface. Our platform is designed to bridge the gap between traditional banking and digital asset management.
 
-## Technology Stack
+## Technology Stack ⚒️
 
 Hunzo leverages a robust and scalable technology stack to ensure reliability, performance, and security:
 
@@ -44,10 +63,10 @@ Hunzo leverages a robust and scalable technology stack to ensure reliability, pe
 - **Kafka**: Used for real-time data streaming and event-driven architecture
 - **Redis**: Utilized for fast in-memory caching and data storage
 - **Docker & Docker Compose**: Containerization and orchestration for streamlined deployment and scalability
-- **Cassandra**: Distributed NoSQL database for handling large volumes of data with high availability and fault tolerant
+- **Cassandra**: Distributed NoSQL database for handling large volumes of data with high availability and fault tolerance
 - ...and more
 
-## Microservices Architecture
+## Microservices Architecture 🏗️
 
 Hunzo adopts a microservices-based architecture to ensure modularity, scalability, and fault tolerance. The platform is composed of several key microservices, each responsible for a specific domain:
 
@@ -61,9 +80,9 @@ Hunzo adopts a microservices-based architecture to ensure modularity, scalabilit
 
 These microservices communicate and collaborate through well-defined APIs and event-driven interactions, enabling a decoupled and resilient system architecture.
 
-## Important Notice
+## Important Notice ⚠️
 
-⚠️ **Disclaimer**: Hunzo is a fintech platform currently in development and is not an FDIC-insured bank. While we strive to provide reliable banking services through our platform, users should be aware that:
+**Disclaimer**: Hunzo is a fintech platform currently in development and is not an FDIC-insured bank. While we strive to provide reliable banking services through our platform, users should be aware that:
 
 - All services are provided on an as-is basis
 - The platform is in active development
@@ -74,10 +93,40 @@ We are committed to continuously improving and expanding the capabilities of Hun
 
 Join us on this exciting journey as we redefine the future of digital asset banking!
 
-bash `cp .env.example .env `
+## Installation 🛠️
 
+### Prerequisites
+
+- Docker
+- Docker Compose
+
+1. Clone the repository:
+
+```
+git clone https://github.com/HughScott2002/Hunzo-Server
+cd Hunzo-Server
+```
+
+2. Set up environment variables:
+
+```
+bash `cp .env.example .env `
+```
+
+3. Build and run the containerized services;
+
+```
 bash `docker compose up --build ` add `-d` to detach from the output of the containers
+```
 
 OR
 
-bash`docker compose --env-file .env.example  up --build ` add `-d` to detach from the output of the containers
+```
+bash `docker compose --env-file .env.example  up --build `
+```
+
+add `-d` to detach from the output of the containers
+
+```
+bash `docker compose --env-file .env.example  up --build -d`
+```
