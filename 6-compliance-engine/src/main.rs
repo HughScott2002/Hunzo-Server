@@ -1,5 +1,6 @@
 //TODO: Add this to the docker compose file
 
+
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
 
 #[get("/")]
@@ -23,6 +24,12 @@ async fn health() -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    let port = 8080;// Change this later
+    let host = "127.0.0.1";
+    
+
+    println!("Server running on http://{}:{}", host, port);
+
     HttpServer::new(|| {
         App::new()
             .service(hello)
@@ -30,7 +37,7 @@ async fn main() -> std::io::Result<()> {
             .service(health)
             .route("/hey", web::get().to(manual_hello))
     })
-    .bind(("127.0.0.1", 8080))?
+    .bind((host, port))?
     .run()
     .await
 }
